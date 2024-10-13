@@ -245,3 +245,9 @@ The command will generate 3 files per every video disposed in `resources/video_l
   docker inspect pgadmin4-dev
   ```
   <img src="resources/get-docker-ip.png" width="500" />
+
+
+* Anyone on the team who has Docker installed can run docker-compose up to get both the database and PgAdmin up on their machine with a single command.
+    ```commandline
+  docker-compose up -d
+  ```
