@@ -11,7 +11,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${spring.security.jwt.secret}")
+    @Value("${spring.security.jwt.secret")
     private String jwtSecret;
 
     private final long validityInMilliseconds = 3600000; // 1 hora
