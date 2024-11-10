@@ -33,7 +33,10 @@ public class MvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOriginPatterns("*");
+        registry.addMapping("/**") // Allow all endpoints
+                .allowedOrigins("http://localhost:5173") // Allow requests from your frontend
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow specific HTTP methods
+                .allowedHeaders("*")
+                .allowCredentials(true);
     }
 }
