@@ -1,26 +1,33 @@
-import logo from './assets/logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import VideoList from './components/VideoList';
+import { fetchVideos, Video } from './utils/api';
 
-// This is your entry point
-// Feel free to modify ANYTHING in this file
+const App: React.FC = () => {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-function App() {
+  useEffect(() => {
+    async function loadVideos() {
+      try {
+        const videoList = await fetchVideos();
+        setVideos(videoList);
+      } catch (err) {
+        if (err instanceof Error) {
+          setError(`Failed to load videos: ${err.message}`);
+        } else {
+          setError('Failed to load videos: Unknown error');
+        }
+        console.error(err);
+      }
+    }
+    loadVideos();
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Video List</h1>
+      {error && <p>{error}</p>}
+      <VideoList videos={videos} />
     </div>
   );
 }
