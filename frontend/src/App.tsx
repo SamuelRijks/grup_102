@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import VideoList from './components/VideoList';
+import VideoPlayer from './components/VideoPlayer';
 import { fetchVideos, Video } from './utils/api';
 
 const App: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -12,22 +14,26 @@ const App: React.FC = () => {
         const videoList = await fetchVideos();
         setVideos(videoList);
       } catch (err) {
-        if (err instanceof Error) {
-          setError(`Failed to load videos: ${err.message}`);
-        } else {
-          setError('Failed to load videos: Unknown error');
-        }
+        setError(`Failed to load videos: ${(err as Error).message}`);
         console.error(err);
       }
     }
     loadVideos();
   }, []);
 
+  const handleVideoSelect = (video: Video) => {
+    setSelectedVideo(video);
+  };
+
   return (
     <div className="App">
-      <h1>Video List</h1>
+      <h1>Protube</h1>
       {error && <p>{error}</p>}
-      <VideoList videos={videos} />
+      {selectedVideo ? (
+        <VideoPlayer video={selectedVideo} onClose={() => setSelectedVideo(null)} />
+      ) : (
+        <VideoList videos={videos} onVideoSelect={handleVideoSelect} />
+      )}
     </div>
   );
 }

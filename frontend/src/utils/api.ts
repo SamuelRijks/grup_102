@@ -30,26 +30,30 @@ export async function fetchVideos(): Promise<Video[]> {
         });
 
         // Step 3: For each video ID, fetch its JSON metadata and construct the video object
-        const videos: Video[] = await Promise.all(
+        const videos: Video[] = (await Promise.all(
             Array.from(videoIds).map(async (id) => {
-                const metadataResponse = await fetch(`${VITE_API_DOMAIN}/media/${id}.json`);
-                if (!metadataResponse.ok) {
-                    throw new Error(`Failed to fetch video metadata for video ID ${id}`);
+                try {
+                    const metadataResponse = await fetch(`${VITE_API_DOMAIN}/media/${id}.json`);
+                    if (!metadataResponse.ok) {
+                        throw new Error(`Failed to fetch video metadata for video ID ${id}`);
+                    }
+                    const metadata = await metadataResponse.json();
+
+                    return {
+                        id: metadata.id,
+                        title: metadata.title,
+                        user: metadata.user,
+                        thumbnail: `${VITE_API_DOMAIN}/media/${id}.webp`, // URL for the thumbnail
+                    };
+                } catch (error) {
+                    console.error(`Error fetching metadata for video ID ${id}:`, error);
+                    return null; // Return null if there's an error
                 }
-                const metadata = await metadataResponse.json();
-
-                return {
-                    id: metadata.id,
-                    title: metadata.title,
-                    user: metadata.user,
-                    thumbnail: `${VITE_API_DOMAIN}/media/${id}.webp`, // URL for the thumbnail
-                };
             })
-        );
+        )).filter(video => video !== null) as Video[];
 
-        // Step 4: Sort the videos by ID and return
-        return videos.sort((a, b) => a.id - b.id);
-
+        // Step 4: Filter out null values and sort the videos by ID
+        return videos.filter(video => video !== null).sort((a, b) => a.id - b.id);
     } catch (error) {
         console.error('Error fetching videos:', error);
         throw error;
