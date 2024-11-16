@@ -16,13 +16,8 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, onClose }) => {
                 <source src={`${import.meta.env.VITE_API_DOMAIN}/media/${video.id}.mp4`} type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
-            <div className="video-controls">
-                {/* Example control buttons */}
-                <button onClick={() => console.log('Play')}>Play</button>
-                <button onClick={() => console.log('Pause')}>Pause</button>
-                <div className="progress-bar">
-                    <div className="progress" style={{ width: '50%' }}></div>
-                </div>
+            <div className="progress-bar">
+                <div className="progress" style={{ width: '50%' }}></div>
             </div>
         </div>
     );
