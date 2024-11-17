@@ -11,5 +11,7 @@ public class VideoSummaryDTO {
     private String uploaderUsername;
     private String thumbnailUrl;
 
-    // Getters and Setters
+    public void setThumbnailUrl(String filename) {
+        this.thumbnailUrl = "/api/images/" + filename;
+    }
 }

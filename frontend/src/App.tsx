@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import VideoList from './components/VideoList';
 import VideoPlayer from './components/VideoPlayer';
-import { fetchVideos, Video } from './utils/api';
+import { fetchVideos, fetchVideoDetails, Video, VideoDetails } from './utils/api';
 
 const App: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
-  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [selectedVideoDetails, setSelectedVideoDetails] = useState<VideoDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,20 +22,27 @@ const App: React.FC = () => {
     loadVideos();
   }, []);
 
-  const handleVideoSelect = (video: Video) => {
-    setSelectedVideo(video);
+  const handleVideoSelect = async (videoId: number) => {
+    try {
+      const videoDetails = await fetchVideoDetails(videoId);
+      setSelectedVideoDetails(videoDetails);
+    } catch (err) {
+      setError(`Failed to load video details: ${(err as Error).message}`);
+      console.error(err);
+    }
   };
 
   return (
-    <div className="App">
-      <h1>Protube</h1>
-      {error && <p>{error}</p>}
-      {selectedVideo ? (
-        <VideoPlayer video={selectedVideo} onClose={() => setSelectedVideo(null)} />
-      ) : (
-        <VideoList videos={videos} onVideoSelect={handleVideoSelect} />
-      )}
-    </div>
+    <Router>
+      <div className="App">
+        <h1>Protube</h1>
+        {error && <p>{error}</p>}
+        <Routes>
+          <Route path="/" element={<VideoList videos={videos} onVideoSelect={handleVideoSelect} />} />
+          <Route path="/video" element={selectedVideoDetails && <VideoPlayer videoDetails={selectedVideoDetails} onClose={() => setSelectedVideoDetails(null)} />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

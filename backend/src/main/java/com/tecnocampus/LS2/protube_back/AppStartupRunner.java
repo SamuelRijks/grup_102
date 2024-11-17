@@ -91,6 +91,7 @@ public class AppStartupRunner implements ApplicationRunner {
                             Path thumbnailPath = rootPath.resolve(thumbnailFileName);
                             if (Files.exists(thumbnailPath)) {
                                 video.setThumbnailUrl(thumbnailPath.toUri().toString());
+                                LOG.info("Thumbnail file name: {}", thumbnailFileName); // Log the filename
                             } else {
                                 LOG.warn("Thumbnail file not found for video: {}", file.getFileName().toString());
                             }

@@ -1,6 +1,7 @@
 package com.tecnocampus.LS2.protube_back.service;
 
 import com.tecnocampus.LS2.protube_back.domain.Video;
+import com.tecnocampus.LS2.protube_back.dto.VideoDetailsDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
 import com.tecnocampus.LS2.protube_back.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,19 @@ public class VideoService {
         return videoRepository.findById(id).orElse(null);
     }
 
+    public VideoDetailsDTO getVideoDetailsById(Long id) {
+        Video video = videoRepository.findById(id).orElse(null);
+        if (video != null) {
+            VideoDetailsDTO dto = new VideoDetailsDTO();
+            dto.setTitle(video.getTitle());
+            dto.setDescription(video.getDescription());
+            dto.setUploaderUsername(video.getUploader().getUsername());
+            dto.setVideoUrl("http://localhost:8080/api/videos/" + video.getId() + ".mp4");
+            return dto;
+        }
+        return null;
+    }
+
     public List<VideoSummaryDTO> getAllVideoSummaries() {
         return videoRepository.findAll().stream().map(this::convertToDTO).collect(Collectors.toList());
     }
@@ -36,7 +50,7 @@ public class VideoService {
         dto.setId(video.getId());
         dto.setTitle(video.getTitle());
         dto.setUploaderUsername(video.getUploader().getUsername());
-        dto.setThumbnailUrl(video.getThumbnailUrl());
+        dto.setThumbnailUrl(video.getThumbnailUrl().substring(video.getThumbnailUrl().lastIndexOf("/") + 1));
         return dto;
     }
 }
