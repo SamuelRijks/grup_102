@@ -1,5 +1,6 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +18,11 @@ import java.nio.file.Paths;
 @RequestMapping("/api/images")
 public class ImageController {
 
-    private final Path rootLocation = Paths.get("/home/samur18/protube/store");
+    private final Path rootLocation;
+
+    public ImageController(@Value("${pro_tube.store.dir}") String storeDir) {
+        this.rootLocation = Paths.get(storeDir);
+    }
 
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {

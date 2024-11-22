@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import VideoList from './components/VideoList';
-import VideoPlayer from './components/VideoPlayer';
-import { fetchVideos, fetchVideoDetails, Video, VideoDetails } from './utils/api';
+import VideoPage from './components/VideoPage';
+import { fetchVideos, Video } from './utils/api';
+import './App.css';
+import logo from './assets/logo.png';
+import userIcon from './assets/user-icon.png';
 
 const App: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
-  const [selectedVideoDetails, setSelectedVideoDetails] = useState<VideoDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -22,28 +24,50 @@ const App: React.FC = () => {
     loadVideos();
   }, []);
 
-  const handleVideoSelect = async (videoId: number) => {
-    try {
-      const videoDetails = await fetchVideoDetails(videoId);
-      setSelectedVideoDetails(videoDetails);
-    } catch (err) {
-      setError(`Failed to load video details: ${(err as Error).message}`);
-      console.error(err);
-    }
-  };
-
   return (
     <Router>
       <div className="App">
-        <h1>Protube</h1>
-        {error && <p>{error}</p>}
+        {/* Navbar */}
+        <nav className="navbar">
+          <div className="nav-content">
+            {/* Logo */}
+            <div className="logo">
+              <img src={logo} alt="Protube Logo" className="logo-img" />
+              <h1>Protube</h1>
+            </div>
+
+            {/* Search Bar */}
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="Search videos..."
+                className="search-input"
+              />
+              <button className="search-button">Search</button>
+            </div>
+
+            {/* User Profile */}
+            <div className="user-profile">
+              <img
+                src={userIcon}
+                alt="User Profile"
+                className="profile-pic"
+              />
+            </div>
+          </div>
+        </nav>
+
+        {/* Error Message */}
+        {error && <p className="error">{error}</p>}
+
+        {/* Main Content */}
         <Routes>
-          <Route path="/" element={<VideoList videos={videos} onVideoSelect={handleVideoSelect} />} />
-          <Route path="/video" element={selectedVideoDetails && <VideoPlayer videoDetails={selectedVideoDetails} onClose={() => setSelectedVideoDetails(null)} />} />
+          <Route path="/" element={<VideoList videos={videos} />} />
+          <Route path="/video/:id" element={<VideoPage />} />
         </Routes>
       </div>
     </Router>
   );
-}
+};
 
 export default App;

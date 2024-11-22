@@ -1,39 +1,249 @@
-.App {
-    text-align: center;
+/* General Styling */
+body {
+    margin: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #f9fafc;
+    color: #333;
+}
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1e2532;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
   }
   
-  .App-logo {
-    height: 40vmin;
-    pointer-events: none;
-  }
+  /* Responsive Navbar */
+  @media (max-width: 768px) {
+    .nav-content {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
   
-  @media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-      animation: App-logo-spin infinite 20s linear;
+    .logo {
+      flex: 1 1 100%;
+      text-align: center;
+    }
+  
+    .search-bar {
+      flex: 1 1 100%;
+      display: flex;
+      justify-content: center;
+    }
+  
+    .user-profile {
+      display: none; /* Oculta l'icona d'usuari a pantalles petites */
     }
   }
-  
-  .App-header {
-    background-color: #282c34;
-    min-height: 100vh;
+
+/* Logo Section */
+.logo {
     display: flex;
-    flex-direction: column;
+    align-items: center; /* Center vertically */
+    gap: 12px; /* Add spacing between icon and text */
+}
+
+.logo-img {
+    width: 48px; /* Slightly larger size for prominence */
+    height: 48px;
+    object-fit: contain;
+}
+
+/* Search Bar */
+search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+    border: 1px solid #61dafb;
+    box-shadow: 0 0 6px rgba(97, 218, 251, 0.5); /* Subtle glowing effect */
+}
+
+.search-button {
+    padding: 8px 16px;
+    background-color: #61dafb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-button:hover {
+    background-color: #21a1f1;
+    transform: scale(1.05); /* Subtle scale effect */
+}
+
+/* User Profile Section */
+.user-profile {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer; /* Indicates it's clickable */
+    transition: transform 0.2s ease;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+}
+
+.profile-pic:hover {
+    transform: scale(1.1); /* Slight zoom on hover */
+    border-color: #61dafb;
+}
+
+
+/* Error Styling */
+.error {
+    color: #e63946;
+    font-weight: 600;
+    margin: 10px 20px;
+    font-size: 1rem;
+}
+/* General Styling */
+body {
+    margin: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #f9fafc;
+    color: #333;
+}
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1e2532;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative; /* Non-sticky */
+    z-index: 1000;
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* Logo Section */
+.logo {
+    display: flex;
+    align-items: center; /* Centrat verticalment */
+    color: #ffffff;
+    font-size: 1.5rem; /* Augmentem el text del logotip */
+    font-weight: 700; /* Fet més destacat */
+    gap: 12px; /* Espai entre el logotip i el text */
+}
+
+.logo-img {
+    width: 80px; /* Mida del logotip */
+    height: 80px;
+    object-fit: contain; /* Mantenim les proporcions */
+    border-radius: 8px; /* Si vols un lleuger efecte arrodonit */
+}
+
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s ease;
+}
+
+.search-input:focus {
+    border: 1px solid #61dafb;
+}
+
+.search-button {
+    padding: 8px 16px;
+    background-color: #61dafb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #21a1f1;
+}
+
+/* User Profile Section */
+.user-profile {
+    display: flex;
     align-items: center;
     justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
-  }
-  
-  .App-link {
-    color: #61dafb;
-  }
-  
-  @keyframes App-logo-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
+}
+
+.profile-pic {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%; /* Rodoneta */
+    overflow: hidden; /* Evita que el glow surti fora */
+    background-color: #1e2532; /* Color de fons per la rodoneta */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    border: 2px solid #61dafb; /* Contorn blau */
+}
+
+/* Glow efecte al hover */
+.profile-pic:hover {
+    box-shadow: 0 0 15px 3px rgba(97, 218, 251, 0.75); /* Glow blau */
+    transform: scale(1.1); /* Augment de mida */
+}
+
+/* Error Styling */
+.error {
+    color: #e63946;
+    font-weight: 600;
+    margin: 10px 20px;
+    font-size: 1rem;
+}

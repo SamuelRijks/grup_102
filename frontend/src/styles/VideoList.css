@@ -1,66 +1,87 @@
-/* VideoList.css */
-
+/* General Styling */
 .video-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
     padding: 20px;
-    background-color: #f8f9fa;
-    /* Light background for contrast */
+    background-color: #f9fafc; /* Neutral background */
+    font-family: 'Inter', Arial, sans-serif; /* Clean typography */
 }
 
+/* Video Card Styling */
 .video-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
+    background-color: #ffffff; /* White card background */
+    border: 1px solid #e6e8eb; /* Light border for structure */
+    border-radius: 16px;
     overflow: hidden;
-    padding: 12px;
+    padding: 16px;
     text-align: center;
     cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
+/* Card Hover Effect */
 .video-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-5px); /* Slight hover lift */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
 }
 
+/* Video Thumbnail Styling */
 .video-item img {
     width: 100%;
     height: auto;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    transition: transform 0.3s ease;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Light shadow */
 }
 
+/* Thumbnail Hover Effect */
 .video-item img:hover {
-    transform: scale(1.03);
-    /* Slight zoom effect */
+    transform: scale(1.03); /* Subtle zoom effect */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* Slightly stronger shadow */
 }
 
+/* Video Title */
 .video-item h3 {
-    font-size: 1.1rem;
-    margin: 10px 0 5px;
-    color: #333;
+    font-size: 1.4rem;
+    color: #2a2f45; /* Dark gray for readability */
     font-weight: 600;
+    margin: 12px 0;
 }
 
+/* Secondary Text (description, user, etc.) */
 .video-item p {
-    font-size: 0.85rem;
-    color: #666;
+    font-size: 0.95rem;
+    color: #6b7280; /* Muted gray */
     margin: 0;
+    line-height: 1.4;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .video-list {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
     }
 
     .video-item {
-        padding: 10px;
+        padding: 12px;
+    }
+
+    .video-item h3 {
+        font-size: 1.2rem;
+    }
+
+    .video-item p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .video-list {
+        grid-template-columns: 1fr; /* Single column for small screens */
     }
 
     .video-item h3 {

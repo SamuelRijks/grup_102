@@ -21,12 +21,15 @@ export interface VideoDetails {
 }
 
 export async function fetchVideos(): Promise<Video[]> {
+    console.log('fetchVideos called');
     try {
         const response = await fetch(`${VITE_API_DOMAIN}/api/videos/summaries`);
+        console.log('Response status:', response.status); // Estat de la resposta
         if (!response.ok) {
             throw new Error(`Failed to fetch video summaries: ${response.statusText}`);
         }
         const videoSummaries: VideoSummaryDTO[] = await response.json();
+        console.log('Fetched data:', videoSummaries); 
 
         return videoSummaries.map(video => ({
             id: video.id,
