@@ -16,15 +16,14 @@ import java.util.stream.Collectors;
 public class VideoService {
 
     private final VideoRepository videoRepository;
-    private final CommentRepository commentRepository; // Afegir repositori de comentaris
+    private final CommentRepository commentRepository;
 
     @Autowired
     public VideoService(VideoRepository videoRepository, CommentRepository commentRepository) {
         this.videoRepository = videoRepository;
-        this.commentRepository = commentRepository; // Injectar el repositori de comentaris
+        this.commentRepository = commentRepository;
     }
 
-    // Aquí va la implementació del mètode
     public VideoDetailsDTO getVideoDetailsById(Long id) {
         Video video = videoRepository.findById(id).orElse(null);
         if (video == null) {
@@ -35,11 +34,12 @@ public class VideoService {
         dto.setId(video.getId());
         dto.setTitle(video.getTitle());
         dto.setDescription(video.getMeta() != null ? video.getMeta().getDescription() : "No description available");
-        dto.setWidth(video.getWidth());
-        dto.setHeight(video.getHeight());
-        dto.setDuration(video.getDuration());
+        dto.setWidth(1920); // Establecer width a 1920
+        dto.setHeight(1080); // Establecer height a 1080
+        System.out.println("video.getDuration() = " + video.getDuration());
+        dto.setDuration(video.getDuration() != null ? video.getDuration() : 0.0); // Manejar el caso de null
         dto.setUploaderUsername(video.getUploader().getUsername());
-        //dto.setVideoUrl(video.getUrl());
+        dto.setVideoUrl("/api/videos/" + video.getId() + ".mp4"); // Establecer la URL del video
 
         Meta meta = video.getMeta();
         if (meta != null) {
@@ -47,7 +47,6 @@ public class VideoService {
             dto.setCategories(meta.getCategories());
             dto.setTags(meta.getTags());
 
-            // Convertir comentaris
             List<CommentDTO> commentDTOs = meta.getComments().stream()
                     .map(comment -> {
                         CommentDTO commentDTO = new CommentDTO();
@@ -85,12 +84,10 @@ public class VideoService {
         return dto;
     }
 
-
-    // Mètode per convertir `Comment` a `CommentDTO`
     private CommentDTO toCommentDTO(Comment comment) {
         CommentDTO dto = new CommentDTO();
         dto.setContent(comment.getContent());
-        dto.setAuthor(comment.getAuthor().getUsername()); // Nom de l'autor
+        dto.setAuthor(comment.getAuthor().getUsername());
         dto.setTimestamp(comment.getTimestamp());
         dto.setLikes(comment.getLikes());
         dto.setDislikes(comment.getDislikes());

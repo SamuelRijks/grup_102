@@ -84,6 +84,10 @@ public class AppStartupRunner implements ApplicationRunner {
                             Video video = new Video();
                             video.setTitle(rootNode.path("title").asText());
                             video.setUrl(file.toUri().toString());
+                            video.setWidth(rootNode.path("width").asInt());
+                            video.setHeight(rootNode.path("height").asInt());
+                            video.setDuration(rootNode.path("duration").asDouble()); // Ensure duration is set correctly
+                            System.out.println("Duration: " + video.getDuration());
                             video.setUploadDate(LocalDateTime.now());
 
                             // Set thumbnail URL
@@ -97,7 +101,7 @@ public class AppStartupRunner implements ApplicationRunner {
                             }
 
                             // Set uploader
-                            String uploaderName = rootNode.path("uploader").asText();
+                            String uploaderName = rootNode.path("user").asText();
                             User uploader = userRepository.findByUsername(uploaderName);
                             if (uploader == null) {
                                 uploader = new User();

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchVideoDetails } from '../utils/api';
 import '../styles/VideoPage.css';
+const VITE_API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 interface UserComment {
   text: string;

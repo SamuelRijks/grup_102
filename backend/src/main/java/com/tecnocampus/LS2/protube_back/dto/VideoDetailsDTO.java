@@ -14,8 +14,9 @@ public class VideoDetailsDTO {
     private int height;
     private double duration;
     private String uploaderUsername;
-    private String description; // Ara es desglossa de `meta`
+    private String description;
     private List<String> categories;
     private List<String> tags;
     private List<CommentDTO> comments;
+    private String videoUrl; // Nuevo campo para la URL del video
 }

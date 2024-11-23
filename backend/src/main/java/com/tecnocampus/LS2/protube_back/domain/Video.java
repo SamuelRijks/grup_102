@@ -19,8 +19,8 @@ public class Video {
     private String title;
     private String url;
     private String thumbnailUrl;
-    private int width;
-    private int height;
+    private Integer width; // Change to Integer to allow null values
+    private Integer height; // Change to Integer to allow null values
     private Double duration;
     private LocalDateTime uploadDate;
     private int likes = 0;
