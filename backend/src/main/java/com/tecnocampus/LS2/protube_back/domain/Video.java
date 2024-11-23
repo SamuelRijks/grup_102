@@ -17,9 +17,15 @@ public class Video {
     private Long id;
 
     private String title;
-    private String description;
     private String url;
     private String thumbnailUrl;
+    private int width;
+    private int height;
+    private Double duration;
+    private LocalDateTime uploadDate;
+    private int likes = 0;
+    private int dislikes = 0;
+    private int views = 0;
 
     @ManyToOne
     @JoinColumn(name = "uploader_id")
@@ -44,11 +50,10 @@ public class Video {
     )
     private List<Category> categories;
 
-    private int views;
-    private int likes;
-    private int dislikes;
-    private LocalDateTime uploadDate;
-
-    // Getters y Setters
+    // Altres camps i mètodes...
+    @Getter
+    @Setter
+    @Embedded
+    private Meta meta; // Aquí s'inclou el camp `meta`
 }
 
