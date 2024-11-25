@@ -11,6 +11,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Optional;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,6 +56,11 @@ public class AppStartupRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (loadInitialData) {
+//           commentRepository.deleteAll(); // Primero elimina los comentarios
+////            userRepository.deleteAll();    // Luego elimina los usuarios
+////            videoRepository.deleteAll();
+////            categoryRepository.deleteAll();
+////            tagRepository.deleteAll();
             loadVideosFromDirectory();
         }
     }
@@ -75,42 +81,92 @@ public class AppStartupRunner implements ApplicationRunner {
                     .filter(file -> file.toString().endsWith(".json")) // Filter only JSON files
                     .forEach(file -> {
                         LOG.info("Found JSON file: {}", file.getFileName().toString());
-                        videoList.add(file.getFileName().toString());
 
-                        // Parse JSON file
                         ObjectMapper objectMapper = new ObjectMapper();
                         try {
                             JsonNode rootNode = objectMapper.readTree(file.toFile());
-                            Video video = new Video();
-                            video.setTitle(rootNode.path("title").asText());
-                            video.setUrl(file.toUri().toString());
-                            video.setWidth(rootNode.path("width").asInt());
-                            video.setHeight(rootNode.path("height").asInt());
-                            video.setDuration(rootNode.path("duration").asDouble()); // Ensure duration is set correctly
-                            System.out.println("Duration: " + video.getDuration());
-                            video.setUploadDate(LocalDateTime.now());
+                            Long videoId = rootNode.path("id").asLong();
+                            String videoTitle = rootNode.path("title").asText();
 
-                            // Set thumbnail URL
-                            String thumbnailFileName = file.getFileName().toString().replace(".json", ".webp");
-                            Path thumbnailPath = rootPath.resolve(thumbnailFileName);
-                            if (Files.exists(thumbnailPath)) {
-                                video.setThumbnailUrl(thumbnailPath.toUri().toString());
-                                LOG.info("Thumbnail file name: {}", thumbnailFileName); // Log the filename
+                            Optional<Video> existingVideoOpt = videoRepository.findById(videoId);
+                            Video video;
+                            if (existingVideoOpt.isPresent()) {
+                                video = existingVideoOpt.get();
+                                LOG.info("Video already exists: ID={}, Title={}", videoId, videoTitle);
                             } else {
-                                LOG.warn("Thumbnail file not found for video: {}", file.getFileName().toString());
+                                video = new Video();
+                                video.setId(videoId);
+                                video.setTitle(videoTitle);
+                                video.setUrl(file.toUri().toString());
+                                video.setWidth(rootNode.path("width").asInt());
+                                video.setHeight(rootNode.path("height").asInt());
+                                video.setDuration(rootNode.path("duration").asDouble());
+                                video.setUploadDate(LocalDateTime.now());
+
+                                // Set thumbnail URL
+                                String thumbnailFileName = file.getFileName().toString().replace(".json", ".webp");
+                                Path thumbnailPath = rootPath.resolve(thumbnailFileName);
+                                if (Files.exists(thumbnailPath)) {
+                                    video.setThumbnailUrl(thumbnailPath.toUri().toString());
+                                } else {
+                                    LOG.warn("Thumbnail file not found for video: {}", videoTitle);
+                                }
+
+                                // Set uploader
+                                String uploaderName = rootNode.path("user").asText();
+                                User uploader = userRepository.findByUsername(uploaderName)
+                                        .orElseGet(() -> {
+                                            User newUser = new User();
+                                            newUser.setUsername(uploaderName);
+                                            newUser.setEmail(uploaderName + "@example.com");
+                                            newUser.setPassword(generateRandomPassword());
+                                            return userRepository.save(newUser);
+                                        });
+                                video.setUploader(uploader);
+
+                                // Create and set Meta object
+                                Meta meta = new Meta();
+                                meta.setDescription(rootNode.path("meta").path("description").asText());
+                                video.setMeta(meta);
                             }
 
-                            // Set uploader
-                            String uploaderName = rootNode.path("user").asText();
-                            User uploader = userRepository.findByUsername(uploaderName);
-                            if (uploader == null) {
-                                uploader = new User();
-                                uploader.setUsername(uploaderName);
-                                uploader.setEmail(uploaderName + "@example.com");
-                                uploader.setPassword(generateRandomPassword());
-                                userRepository.save(uploader);
+                            // Process comments
+                            List<Comment> comments = new ArrayList<>();
+                            JsonNode commentsNode = rootNode.path("meta").path("comments");
+                            if (commentsNode.isArray()) {
+                                for (JsonNode commentNode : commentsNode) {
+                                    try {
+                                        String authorName = commentNode.path("author").asText();
+                                        User commentAuthor = userRepository.findByUsername(authorName)
+                                                .orElseGet(() -> {
+                                                    User newUser = new User();
+                                                    newUser.setUsername(authorName);
+                                                    newUser.setEmail(authorName + "@example.com");
+                                                    newUser.setPassword(generateRandomPassword());
+                                                    return userRepository.save(newUser);
+                                                });
+                                        Comment comment = new Comment();
+                                        comment.setContent(commentNode.path("text").asText());
+                                        comment.setAuthor(commentAuthor);
+                                        comment.setVideo(video);
+                                        comment.setTimestamp(LocalDateTime.now());
+
+                                        // Guardar comentario si no existe uno idéntico
+                                        if (!commentRepository.existsByContentAndAuthorAndVideo(comment.getContent(), comment.getAuthor(), comment.getVideo())) {
+                                            commentRepository.save(comment);
+                                            comments.add(comment);
+                                            LOG.info("Saved comment: {} by {}", comment.getContent(), comment.getAuthor().getUsername());
+                                        }
+                                    } catch (Exception e) {
+                                        LOG.error("Failed to process comment for video {}: {}", video.getId(), e.getMessage());
+                                    }
+                                }
                             }
-                            video.setUploader(uploader);
+
+                            // Set comments to video and meta
+                            video.setComments(comments); // Asignar comentarios al video
+                            video.getMeta().setComments(comments);  // Asignar comentarios al meta
+
 
                             // Process categories
                             List<Category> categories = new ArrayList<>();
@@ -118,16 +174,17 @@ public class AppStartupRunner implements ApplicationRunner {
                             if (categoriesNode.isArray()) {
                                 for (JsonNode categoryNode : categoriesNode) {
                                     String categoryName = categoryNode.asText();
-                                    Category category = categoryRepository.findByName(categoryName);
-                                    if (category == null) {
-                                        category = new Category();
-                                        category.setName(categoryName);
-                                        categoryRepository.save(category);
-                                    }
+                                    Category category = categoryRepository.findByName(categoryName)
+                                            .orElseGet(() -> {
+                                                Category newCategory = new Category();
+                                                newCategory.setName(categoryName);
+                                                return categoryRepository.save(newCategory);
+                                            });
                                     categories.add(category);
                                 }
                             }
-                            video.setCategories(categories);
+                            video.setCategories(categories); // Sigue asignando categorías al video
+                            video.getMeta().setCategories(categories);  // También asigna categorías al meta
 
                             // Process tags
                             List<Tag> tags = new ArrayList<>();
@@ -135,54 +192,31 @@ public class AppStartupRunner implements ApplicationRunner {
                             if (tagsNode.isArray()) {
                                 for (JsonNode tagNode : tagsNode) {
                                     String tagName = tagNode.asText();
-                                    Tag tag = tagRepository.findByName(tagName);
-                                    if (tag == null) {
-                                        tag = new Tag();
-                                        tag.setName(tagName);
-                                        tagRepository.save(tag);
-                                    }
+                                    Tag tag = tagRepository.findByName(tagName)
+                                            .orElseGet(() -> {
+                                                Tag newTag = new Tag();
+                                                newTag.setName(tagName);
+                                                return tagRepository.save(newTag);
+                                            });
                                     tags.add(tag);
                                 }
                             }
-                            video.setTags(tags);
+                            video.setTags(tags); // Sigue asignando etiquetas al video
+                            video.getMeta().setTags(tags);  // También asigna etiquetas al meta
 
-                            // Save video before processing comments
+                            // Save video
                             videoRepository.save(video);
-
-                            // Process comments and users
-                            List<Comment> comments = new ArrayList<>();
-                            JsonNode commentsNode = rootNode.path("meta").path("comments");
-                            if (commentsNode.isArray()) {
-                                for (JsonNode commentNode : commentsNode) {
-                                    String authorName = commentNode.path("author").asText();
-                                    User user = userRepository.findByUsername(authorName);
-                                    if (user == null) {
-                                        user = new User();
-                                        user.setUsername(authorName);
-                                        user.setEmail(authorName + "@example.com");
-                                        user.setPassword(generateRandomPassword());
-                                        userRepository.save(user);
-                                    }
-                                    Comment comment = new Comment();
-                                    comment.setContent(commentNode.path("text").asText());
-                                    comment.setAuthor(user);
-                                    comment.setVideo(video);
-                                    comment.setTimestamp(LocalDateTime.now());
-                                    commentRepository.save(comment);
-                                    comments.add(comment);
-                                }
-                            }
-                            video.setComments(comments);
 
                         } catch (IOException e) {
                             LOG.error("Error parsing JSON file: {}", e.getMessage());
                         }
                     });
-            LOG.info("Loaded {} videos", videoList.size());
+            LOG.info("Loaded {} videos", videoRepository.count());
         } catch (IOException e) {
             LOG.error("Error loading videos: {}", e.getMessage());
         }
     }
+
 
     private String generateRandomPassword() {
         SecureRandom random = new SecureRandom();

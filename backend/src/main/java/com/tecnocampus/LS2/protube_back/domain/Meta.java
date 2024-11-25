@@ -1,25 +1,23 @@
 package com.tecnocampus.LS2.protube_back.domain;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import java.util.List;
 
 @Embeddable
 public class Meta {
+    @Column(length = 5000)
     private String description;
 
-    @ElementCollection
-    private List<String> categories;
+    @ManyToMany
+    private List<Category> categories; // Cambiar a objetos de Category
 
-    @ElementCollection
-    private List<String> tags;
+    @ManyToMany
+    private List<Tag> tags; // Cambiar a objetos de Tag
 
     @OneToMany(mappedBy = "video", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
-    // Getters i Setters
+    // Getters y Setters
     public String getDescription() {
         return description;
     }
@@ -28,19 +26,19 @@ public class Meta {
         this.description = description;
     }
 
-    public List<String> getCategories() {
+    public List<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(List<String> categories) {
+    public void setCategories(List<Category> categories) {
         this.categories = categories;
     }
 
-    public List<String> getTags() {
+    public List<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(List<Tag> tags) {
         this.tags = tags;
     }
 
@@ -52,4 +50,3 @@ public class Meta {
         this.comments = comments;
     }
 }
-

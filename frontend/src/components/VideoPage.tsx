@@ -1,30 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchVideoDetails } from '../utils/api';
+import { fetchVideoDetails, VideoDetails } from '../utils/api';
 import '../styles/VideoPage.css';
-const VITE_API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
-
-interface UserComment {
-  text: string;
-  author: string;
-}
-
-interface Meta {
-  description: string;
-  categories: string[];
-  tags: string[];
-  comments: UserComment[];
-}
-
-interface VideoDetails {
-  id: number;
-  width: number;
-  height: number;
-  duration: number;
-  title: string;
-  user: string;
-  meta: Meta;
-}
 
 const VideoPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -37,6 +14,7 @@ const VideoPage: React.FC = () => {
       try {
         if (!id) throw new Error('Video ID is missing');
         const data = await fetchVideoDetails(Number(id));
+        console.log(data.meta);
         setVideoDetails(data);
       } catch (err) {
         setError(`Error loading video: ${(err as Error).message}`);
@@ -67,34 +45,28 @@ const VideoPage: React.FC = () => {
           controls
           width={videoDetails.width}
           height={videoDetails.height}
+          src={videoDetails.videoUrl}
         >
-          <source
-            src={`${VITE_API_DOMAIN}/videos/${videoDetails.id}.mp4`}
-            type="video/mp4"
-          />
           Your browser does not support the video tag.
         </video>
-        <h1 className="video-title">{videoDetails.title}</h1>
-        <p className="video-user">Uploaded by: {videoDetails.user}</p>
-        <p className="video-duration">
-          Duration: {videoDetails.duration.toFixed(1)} seconds
-        </p>
-        <p className="video-description">{videoDetails.meta.description}</p>
-        <p className="video-categories">
-          Categories: {videoDetails.meta.categories.join(', ') || 'None'}
-        </p>
-
-        <div className="comments-section">
-          <h2>Comments</h2>
-          {videoDetails.meta.comments.length > 0 ? (
-            videoDetails.meta.comments.map((comment, index) => (
-              <div key={index} className="comment">
-                <strong>{comment.author}:</strong> {comment.text}
-              </div>
-            ))
-          ) : (
-            <p>No comments available.</p>
-          )}
+      </div>
+      <div className="video-info">
+        <h2>{videoDetails.title}</h2>
+        <p>{videoDetails.meta.description}</p>
+        <div className="meta-info">
+          <p><strong>Uploaded by:</strong> {videoDetails.user}</p>
+          <p><strong>Categories:</strong> {videoDetails.meta.categories.join(', ')}</p>
+          <p><strong>Tags:</strong> {videoDetails.meta.tags.join(', ')}</p>
+          <p><strong>Comments:</strong></p>
+          <ul>
+            {videoDetails.meta.comments.map((comment, index) => (
+              <li key={index}>
+                <p>{comment.text}</p>
+                <p><em>by {comment.author} on {new Date(comment.timestamp).toLocaleString()}</em></p>
+                <p>Likes: {comment.likes} | Dislikes: {comment.dislikes}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

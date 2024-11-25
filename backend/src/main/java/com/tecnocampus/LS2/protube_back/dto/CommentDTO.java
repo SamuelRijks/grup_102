@@ -24,5 +24,8 @@ public class CommentDTO {
         dto.setDislikes(comment.getDislikes());
         return dto;
     }
+
+    public CommentDTO() {
+    }
 }
 

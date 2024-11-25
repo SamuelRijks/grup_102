@@ -24,45 +24,14 @@ public class VideoService {
         this.commentRepository = commentRepository;
     }
 
+
     public VideoDetailsDTO getVideoDetailsById(Long id) {
         Video video = videoRepository.findById(id).orElse(null);
         if (video == null) {
+            System.out.println("Video not found");
             return null;
         }
-
-        VideoDetailsDTO dto = new VideoDetailsDTO();
-        dto.setId(video.getId());
-        dto.setTitle(video.getTitle());
-        dto.setDescription(video.getMeta() != null ? video.getMeta().getDescription() : "No description available");
-        dto.setWidth(1920); // Establecer width a 1920
-        dto.setHeight(1080); // Establecer height a 1080
-        System.out.println("video.getDuration() = " + video.getDuration());
-        dto.setDuration(video.getDuration() != null ? video.getDuration() : 0.0); // Manejar el caso de null
-        dto.setUploaderUsername(video.getUploader().getUsername());
-        dto.setVideoUrl("/api/videos/" + video.getId() + ".mp4"); // Establecer la URL del video
-
-        Meta meta = video.getMeta();
-        if (meta != null) {
-            dto.setDescription(meta.getDescription());
-            dto.setCategories(meta.getCategories());
-            dto.setTags(meta.getTags());
-
-            List<CommentDTO> commentDTOs = meta.getComments().stream()
-                    .map(comment -> {
-                        CommentDTO commentDTO = new CommentDTO();
-                        commentDTO.setContent(comment.getContent());
-                        commentDTO.setAuthor(comment.getAuthor().getUsername());
-                        return commentDTO;
-                    }).toList();
-            dto.setComments(commentDTOs);
-        } else {
-            dto.setDescription("No description available.");
-            dto.setCategories(List.of());
-            dto.setTags(List.of());
-            dto.setComments(List.of());
-        }
-
-        return dto;
+        return new VideoDetailsDTO(video);
     }
 
     public List<Video> getAllVideos() {

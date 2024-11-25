@@ -1,6 +1,5 @@
 package com.tecnocampus.LS2.protube_back.domain;
 
-import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,13 +32,5 @@ public class Comment {
     private int likes;
     private int dislikes;
 
-    public CommentDTO toCommentDTO(Comment comment) {
-        CommentDTO dto = new CommentDTO();
-        dto.setContent(comment.getContent());
-        dto.setAuthor(comment.getAuthor().getUsername()); // Suposant que User té `getUsername()`
-        dto.setTimestamp(comment.getTimestamp());
-        dto.setLikes(comment.getLikes());
-        dto.setDislikes(comment.getDislikes());
-        return dto;
-    }
+
 }
