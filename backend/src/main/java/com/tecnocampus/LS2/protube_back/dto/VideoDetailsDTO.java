@@ -19,7 +19,7 @@ public class VideoDetailsDTO {
     private String description;
     private List<Category> categories;
     private List<Tag> tags;
-    private List<Comment> comments;
+    private List<CommentDTO> comments;
     private String videoUrl;
 
     public VideoDetailsDTO(Video video) {
@@ -29,7 +29,7 @@ public class VideoDetailsDTO {
         this.height = video.getHeight();
         this.duration = video.getDuration() != null ? video.getDuration() : 0.0; // Manejar el caso de null
         this.uploaderUsername = video.getUploader().getUsername();
-        this.videoUrl = "/api/videos/" + video.getId() + ".mp4"; // Establecer la URL del video
+        setVideoUrl(video.getUrl());
 
         Meta meta = video.getMeta();
         if (meta != null) {
@@ -46,15 +46,9 @@ public class VideoDetailsDTO {
                         tagDTO.setName(tag.getName());
                         return tagDTO;
                     }).collect(Collectors.toList());
-            this.comments = meta.getComments().stream()
+            this.comments = video.getComments().stream()
                 .map(comment -> {
-                    Comment commentDTO = new Comment();
-                    comment.setContent(comment.getContent());
-                    comment.setAuthor(comment.getAuthor());
-                    comment.setTimestamp(comment.getTimestamp());
-                    comment.setLikes(comment.getLikes());
-                    comment.setDislikes(comment.getDislikes());
-                    comment.setVideo(comment.getVideo());
+                    CommentDTO commentDTO = new CommentDTO(comment);
                     return commentDTO;
                 }).collect(Collectors.toList());
         } else {
@@ -63,5 +57,12 @@ public class VideoDetailsDTO {
             this.tags = List.of();
             this.comments = List.of();
         }
+
+    }
+
+    public void setVideoUrl(String filename) {
+        System.out.println("Setting video URL to: " + filename);
+        this.videoUrl = "/api/videos/" + filename;
+        System.out.println("Video URL set to: " + this.videoUrl);
     }
 }

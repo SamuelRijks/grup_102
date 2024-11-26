@@ -97,7 +97,14 @@ public class AppStartupRunner implements ApplicationRunner {
                                 video = new Video();
                                 video.setId(videoId);
                                 video.setTitle(videoTitle);
-                                video.setUrl(file.toUri().toString());
+                                // Set the URL to the corresponding MP4 file
+                                String mp4FileName = file.getFileName().toString().replace(".json", ".mp4");
+                                Path mp4FilePath = rootPath.resolve(mp4FileName);
+                                if (Files.exists(mp4FilePath)) {
+                                    video.setUrl(mp4FilePath.toUri().toString());
+                                } else {
+                                    LOG.warn("MP4 file not found for video: {}", videoTitle);
+                                }
                                 video.setWidth(rootNode.path("width").asInt());
                                 video.setHeight(rootNode.path("height").asInt());
                                 video.setDuration(rootNode.path("duration").asDouble());

@@ -15,15 +15,13 @@ public class CommentDTO {
     private int likes;      // Número de "M'agrada"
     private int dislikes;   // Número de "No m'agrada"
 
-    private CommentDTO toCommentDTO(Comment comment) {
-        CommentDTO dto = new CommentDTO();
-        dto.setContent(comment.getContent());
-        dto.setAuthor(comment.getAuthor().getUsername());
-        dto.setTimestamp(comment.getTimestamp());
-        dto.setLikes(comment.getLikes());
-        dto.setDislikes(comment.getDislikes());
-        return dto;
-    }
+public CommentDTO(Comment comment) {
+    this.content = comment.getContent();
+    this.author = comment.getAuthor().getUsername();
+    this.timestamp = comment.getTimestamp();
+    this.likes = comment.getLikes();
+    this.dislikes = comment.getDislikes();
+}
 
     public CommentDTO() {
     }

@@ -14,7 +14,7 @@ const VideoPage: React.FC = () => {
       try {
         if (!id) throw new Error('Video ID is missing');
         const data = await fetchVideoDetails(Number(id));
-        console.log(data.meta);
+        console.log('Comments received:', data.meta.comments); // Mostrar comentarios en la consola
         setVideoDetails(data);
       } catch (err) {
         setError(`Error loading video: ${(err as Error).message}`);
@@ -43,8 +43,6 @@ const VideoPage: React.FC = () => {
       <div className="video-container">
         <video
           controls
-          width={videoDetails.width}
-          height={videoDetails.height}
           src={videoDetails.videoUrl}
         >
           Your browser does not support the video tag.

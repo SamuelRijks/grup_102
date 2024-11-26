@@ -1,48 +1,69 @@
+/* VideoPage.css */
+
 .video-page {
-  max-width: 800px;
-  margin: 0 auto;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  margin: 0 auto;
+  max-width: 1200px;
+  /* Limitar el ancho máximo de la página */
 }
 
 .video-container {
-  text-align: center;
-}
-
-video {
-  width: 100%;
-  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  /* Agregar un poco de padding alrededor del video */
+  border: 1px solid #ddd;
+  /* Agregar un borde alrededor del video */
   border-radius: 8px;
+  /* Bordes redondeados */
+  background-color: #f9f9f9;
+  /* Fondo claro */
+  max-width: 100%;
+  /* Asegurarse de que el contenedor no exceda el ancho de la página */
 }
 
-.video-title {
-  font-size: 1.8em;
-  font-weight: bold;
-  margin: 20px 0;
+.video-container video {
+  width: 100%;
+  /* Asegurarse de que el video ocupe el 100% del contenedor */
+  height: auto;
+  /* Mantener la proporción del video */
+  max-width: 100%;
+  /* Asegurarse de que el video no exceda el ancho del contenedor */
+  border-radius: 8px;
+  /* Bordes redondeados para el video */
 }
 
-.video-user,
-.video-duration,
-.video-description,
-.video-categories {
+.video-info {
+  text-align: left;
+  margin-top: 20px;
+  padding: 10px;
+  /* Agregar un poco de padding alrededor de la información del video */
+  border: 1px solid #ddd;
+  /* Agregar un borde alrededor de la información del video */
+  border-radius: 8px;
+  /* Bordes redondeados */
+  background-color: #f9f9f9;
+  /* Fondo claro */
+}
+
+.meta-info {
+  margin-top: 20px;
+}
+
+.meta-info p {
   font-size: 1em;
-  margin: 10px 0;
-  color: #555;
-}
-
-.comments-section {
-  margin-top: 30px;
-}
-
-.comments-section h2 {
-  font-size: 1.5em;
   margin-bottom: 10px;
 }
 
-.comment {
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 0.9em;
+.meta-info ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.meta-info li {
+  font-size: 1em;
+  margin-bottom: 5px;
 }

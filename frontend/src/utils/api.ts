@@ -24,7 +24,7 @@ interface Tag {
 interface UserComment {
   text: string;
   author: string;
-  timestamp: string;
+  timestamp: Date;
   likes: number;
   dislikes: number;
 }
@@ -82,7 +82,7 @@ export async function fetchVideoDetails(id: number): Promise<VideoDetails> {
       duration: videoDetails.duration,
       title: videoDetails.title,
       user: videoDetails.uploaderUsername,
-      videoUrl: videoDetails.videoUrl,
+      videoUrl: `${VITE_API_DOMAIN}/api/videos/${id}.mp4`,
       meta: {
         description: videoDetails.description || '',
         categories: videoDetails.categories ? videoDetails.categories.map((category: Category) => category.name) : [],
@@ -90,7 +90,7 @@ export async function fetchVideoDetails(id: number): Promise<VideoDetails> {
         comments: videoDetails.comments ? videoDetails.comments.map((comment: CommentDTO) => ({
           text: comment.content,
           author: comment.author,
-          timestamp: comment.timestamp,
+          timestamp: new Date(Date.UTC(...(comment.timestamp as [number, number, number, number, number, number]))), // Convertir array a Date
           likes: comment.likes,
           dislikes: comment.dislikes,
         })) : [],
@@ -126,7 +126,7 @@ interface VideoDetailsDTO {
 interface CommentDTO {
   content: string;
   author: string;
-  timestamp: string;
+  timestamp: number[];
   likes: number;
   dislikes: number;
 }
