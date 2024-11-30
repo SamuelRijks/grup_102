@@ -39,15 +39,17 @@ public class VideoController {
 
             if (resource.exists() || resource.isReadable()) {
                 return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                        .header(HttpHeaders.CONTENT_TYPE, "video/mp4") // Asegura el tipo de contenido
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"") // Cambiado a 'inline'
                         .body(resource);
-            } else {
+               } else {
                 return ResponseEntity.notFound().build();
             }
         } catch (MalformedURLException e) {
             return ResponseEntity.badRequest().build();
         }
     }
+
 
     @GetMapping
     public List<Video> getAllVideos() {

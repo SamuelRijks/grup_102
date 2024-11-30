@@ -14,6 +14,7 @@ const VideoPage: React.FC = () => {
       try {
         if (!id) throw new Error('Video ID is missing');
         const data = await fetchVideoDetails(Number(id));
+        console.log('url:', data.videoUrl); // Mostrar la URL del video en la consola
         console.log('Comments received:', data.meta.comments); // Mostrar comentarios en la consola
         setVideoDetails(data);
       } catch (err) {

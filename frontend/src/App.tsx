@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import VideoList from './components/VideoList';
 import VideoPage from './components/VideoPage';
+import UserPage from './components/UserPage';
 import { fetchVideos, Video } from './utils/api';
 import './App.css';
 import logo from './assets/logo.png';
@@ -48,11 +49,14 @@ const App: React.FC = () => {
 
             {/* User Profile */}
             <div className="user-profile">
-              <img
-                src={userIcon}
-                alt="User Profile"
-                className="profile-pic"
-              />
+              <Link to="/user">
+                <img
+                  src={userIcon}
+                  alt="User Profile"
+                  className="profile-pic"
+                />
+              </Link>
+
             </div>
           </div>
         </nav>
@@ -64,6 +68,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<VideoList videos={videos} />} />
           <Route path="/video/:id" element={<VideoPage />} />
+          <Route path="/user" element={<UserPage />} />
         </Routes>
       </div>
     </Router>

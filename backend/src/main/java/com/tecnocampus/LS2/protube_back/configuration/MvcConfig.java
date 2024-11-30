@@ -29,6 +29,9 @@ public class MvcConfig implements WebMvcConfigurer {
                         "classpath:/resources/",
                         "classpath:/META-INF/resources/")
            .setCachePeriod(3600);
+        registry
+                .addResourceHandler("/api/videos/**")
+                .addResourceLocations("pro_tube.store.dir");
     }
 
     @Override
