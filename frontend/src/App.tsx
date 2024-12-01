@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import VideoList from './components/VideoList';
 import VideoPage from './components/VideoPage';
 import UserPage from './components/UserPage';
+import MyCommentsPage from './components/MyCommentsPage';
+import MyVideosPage from './components/MyVideosPage';
 import { fetchVideos, Video } from './utils/api';
 import './App.css';
 import logo from './assets/logo.png';
@@ -11,6 +13,8 @@ import userIcon from './assets/user-icon.png';
 const App: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     async function loadVideos() {
@@ -24,6 +28,20 @@ const App: React.FC = () => {
     }
     loadVideos();
   }, []);
+
+  const handleProfileClick = () => {
+    if (username) {
+      setShowDialog(!showDialog);
+    } else {
+      // Redirigir a la página de inicio de sesión si no está autenticado
+      window.location.href = '/user';
+    }
+  };
+
+  const handleLogout = () => {
+    setUsername(null);
+    setShowDialog(false);
+  };
 
   return (
     <Router>
@@ -49,14 +67,20 @@ const App: React.FC = () => {
 
             {/* User Profile */}
             <div className="user-profile">
-              <Link to="/user">
-                <img
-                  src={userIcon}
-                  alt="User Profile"
-                  className="profile-pic"
-                />
-              </Link>
-
+              <img
+                src={userIcon}
+                alt="User Profile"
+                className="profile-pic"
+                onClick={handleProfileClick}
+              />
+              {username && showDialog && (
+                <div className="profile-dialog">
+                  <p>Welcome {username}</p>
+                  <Link to="/my-comments">My Comments</Link>
+                  <Link to="/my-videos">My Videos</Link>
+                  <button className="logout" onClick={handleLogout}>Log Out</button>
+                </div>
+              )}
             </div>
           </div>
         </nav>
@@ -68,7 +92,15 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<VideoList videos={videos} />} />
           <Route path="/video/:id" element={<VideoPage />} />
-          <Route path="/user" element={<UserPage />} />
+          <Route path="/user" element={<UserPage setUsername={setUsername} />} />
+          <Route
+            path="/my-comments"
+            element={username ? <MyCommentsPage username={username} /> : <Navigate to="/user" />}
+          />
+          <Route
+            path="/my-videos"
+            element={username ? <MyVideosPage username={username} /> : <Navigate to="/user" />}
+          />
         </Routes>
       </div>
     </Router>

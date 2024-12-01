@@ -17,41 +17,45 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
-  }
-  
-  /* Responsive Navbar */
-  @media (max-width: 768px) {
+}
+
+/* Responsive Navbar */
+@media (max-width: 768px) {
     .nav-content {
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
     }
-  
+
     .logo {
-      flex: 1 1 100%;
-      text-align: center;
+        flex: 1 1 100%;
+        text-align: center;
     }
-  
+
     .search-bar {
-      flex: 1 1 100%;
-      display: flex;
-      justify-content: center;
+        flex: 1 1 100%;
+        display: flex;
+        justify-content: center;
     }
-  
+
     .user-profile {
-      display: none; /* Oculta l'icona d'usuari a pantalles petites */
+        display: none;
+        /* Oculta l'icona d'usuari a pantalles petites */
     }
-  }
+}
 
 /* Logo Section */
 .logo {
     display: flex;
-    align-items: center; /* Center vertically */
-    gap: 12px; /* Add spacing between icon and text */
+    align-items: center;
+    /* Center vertically */
+    gap: 12px;
+    /* Add spacing between icon and text */
 }
 
 .logo-img {
-    width: 48px; /* Slightly larger size for prominence */
+    width: 48px;
+    /* Slightly larger size for prominence */
     height: 48px;
     object-fit: contain;
 }
@@ -78,7 +82,8 @@ search-bar {
 
 .search-input:focus {
     border: 1px solid #61dafb;
-    box-shadow: 0 0 6px rgba(97, 218, 251, 0.5); /* Subtle glowing effect */
+    box-shadow: 0 0 6px rgba(97, 218, 251, 0.5);
+    /* Subtle glowing effect */
 }
 
 .search-button {
@@ -94,7 +99,8 @@ search-bar {
 
 .search-button:hover {
     background-color: #21a1f1;
-    transform: scale(1.05); /* Subtle scale effect */
+    transform: scale(1.05);
+    /* Subtle scale effect */
 }
 
 /* User Profile Section */
@@ -102,7 +108,8 @@ search-bar {
     display: flex;
     align-items: center;
     position: relative;
-    cursor: pointer; /* Indicates it's clickable */
+    cursor: pointer;
+    /* Indicates it's clickable */
     transition: transform 0.2s ease;
 }
 
@@ -115,7 +122,8 @@ search-bar {
 }
 
 .profile-pic:hover {
-    transform: scale(1.1); /* Slight zoom on hover */
+    transform: scale(1.1);
+    /* Slight zoom on hover */
     border-color: #61dafb;
 }
 
@@ -127,6 +135,7 @@ search-bar {
     margin: 10px 20px;
     font-size: 1rem;
 }
+
 /* General Styling */
 body {
     margin: 0;
@@ -143,7 +152,8 @@ body {
     background-color: #1e2532;
     padding: 10px 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: relative; /* Non-sticky */
+    position: relative;
+    /* Non-sticky */
     z-index: 1000;
 }
 
@@ -158,18 +168,25 @@ body {
 /* Logo Section */
 .logo {
     display: flex;
-    align-items: center; /* Centrat verticalment */
+    align-items: center;
+    /* Centrat verticalment */
     color: #ffffff;
-    font-size: 1.5rem; /* Augmentem el text del logotip */
-    font-weight: 700; /* Fet més destacat */
-    gap: 12px; /* Espai entre el logotip i el text */
+    font-size: 1.5rem;
+    /* Augmentem el text del logotip */
+    font-weight: 700;
+    /* Fet més destacat */
+    gap: 12px;
+    /* Espai entre el logotip i el text */
 }
 
 .logo-img {
-    width: 80px; /* Mida del logotip */
+    width: 80px;
+    /* Mida del logotip */
     height: 80px;
-    object-fit: contain; /* Mantenim les proporcions */
-    border-radius: 8px; /* Si vols un lleuger efecte arrodonit */
+    object-fit: contain;
+    /* Mantenim les proporcions */
+    border-radius: 8px;
+    /* Si vols un lleuger efecte arrodonit */
 }
 
 
@@ -223,21 +240,27 @@ body {
     position: relative;
     width: 50px;
     height: 50px;
-    border-radius: 50%; /* Rodoneta */
-    overflow: hidden; /* Evita que el glow surti fora */
-    background-color: #1e2532; /* Color de fons per la rodoneta */
+    border-radius: 50%;
+    /* Rodoneta */
+    overflow: hidden;
+    /* Evita que el glow surti fora */
+    background-color: #1e2532;
+    /* Color de fons per la rodoneta */
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
-    border: 2px solid #61dafb; /* Contorn blau */
+    border: 2px solid #61dafb;
+    /* Contorn blau */
 }
 
 /* Glow efecte al hover */
 .profile-pic:hover {
-    box-shadow: 0 0 15px 3px rgba(97, 218, 251, 0.75); /* Glow blau */
-    transform: scale(1.1); /* Augment de mida */
+    box-shadow: 0 0 15px 3px rgba(97, 218, 251, 0.75);
+    /* Glow blau */
+    transform: scale(1.1);
+    /* Augment de mida */
 }
 
 /* Error Styling */
@@ -246,4 +269,89 @@ body {
     font-weight: 600;
     margin: 10px 20px;
     font-size: 1rem;
+}
+
+
+.profile-dialog {
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    background-color: #1e2532;
+    border: 1px solid #e5e7eb;
+    /* Light border */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
+    padding: 10px;
+    z-index: 1000;
+    width: 250px;
+    animation: fadeIn 0.2s ease-in-out;
+    font-family: 'Inter', sans-serif;
+    /* Matches ChatGPT's font */
+}
+
+.profile-dialog p {
+    margin: 10px 0;
+    padding: 0;
+    font-weight: 600;
+    /* Bold for the username */
+    color: #ffffff;
+    /* Dark text color */
+    text-align: center;
+    font-size: 1rem;
+}
+
+.profile-dialog a,
+.profile-dialog button {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    margin: 4px 0;
+    border-radius: 6px;
+    /* Light gray background */
+    background-color: #1e2532;
+    /* Same as dialog background */
+    color: #ffffff;
+    /* White text */
+    font-size: 0.875rem;
+    /* Slightly smaller font size */
+    text-align: left;
+    /* Align text to the left */
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+    /* Include padding and border in the element's total width and height */
+}
+
+.profile-dialog a:hover,
+.profile-dialog button:hover {
+    background-color: #2a3345;
+}
+
+.profile-dialog a.logout-button,
+.profile-dialog button.logout-button {
+    margin-top: 8px;
+    /* Subtle red background */
+    color: #b91c1c;
+    /* Red text for logout */
+}
+
+.profile-dialog a.logout-button:hover,
+.profile-dialog button.logout-button:hover {
+    /* Darker red hover effect */
+    color: #991b1b;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

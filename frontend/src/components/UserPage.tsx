@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/UserPage.css';
 
 interface User {
   username: string;
-  email: string;
+  email?: string;
   password: string;
 }
 
-const UserPage: React.FC = () => {
+interface UserPageProps {
+  setUsername: (username: string) => void;
+}
+
+const UserPage: React.FC<UserPageProps> = ({ setUsername }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
+  const [username, setUsernameState] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const toggleForm = () => {
     setIsLogin(!isLogin);
@@ -42,9 +48,37 @@ const UserPage: React.FC = () => {
         throw new Error('Failed to register');
       }
 
-      // Handle successful registration (e.g., redirect to login page)
+      // Handle successful registration
       alert('Registration successful!');
       setIsLogin(true);
+      navigate('/'); // Redirigir a la página de VideoList
+    } catch (err) {
+      setError((err as Error).message);
+    }
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const user: User = { username, password };
+
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(user),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to login');
+      }
+
+      // Handle successful login
+      alert('Login successful!');
+      setUsername(username); // Establecer el nombre de usuario en el estado global
+      navigate('/'); // Redirigir a la página de VideoList
     } catch (err) {
       setError((err as Error).message);
     }
@@ -56,15 +90,28 @@ const UserPage: React.FC = () => {
         {isLogin ? (
           <div className="login-form">
             <h2>Login</h2>
-            <form>
+            <form onSubmit={handleLogin}>
               <div className="form-group">
-                <label htmlFor="login-email">Email:</label>
-                <input type="email" id="login-email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <label htmlFor="login-username">Username:</label>
+                <input
+                  type="text"
+                  id="login-username"
+                  value={username}
+                  onChange={(e) => setUsernameState(e.target.value)}
+                  required
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="login-password">Password:</label>
-                <input type="password" id="login-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <input
+                  type="password"
+                  id="login-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
               </div>
+              {error && <p className="error">{error}</p>}
               <button type="submit" className="submit-button">Login</button>
             </form>
             <p>
@@ -81,7 +128,7 @@ const UserPage: React.FC = () => {
                   type="text"
                   id="register-username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => setUsernameState(e.target.value)}
                   required
                 />
               </div>

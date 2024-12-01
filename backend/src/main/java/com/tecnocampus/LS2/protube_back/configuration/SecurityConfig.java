@@ -45,6 +45,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/videos/**").permitAll()
                         .requestMatchers("/api/images/**").permitAll()
+                        .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/media/**").permitAll() // Add other static resource paths as needed
                         .anyRequest().authenticated()
                 )
