@@ -4,8 +4,8 @@ import com.tecnocampus.LS2.protube_back.domain.*;
 import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoDetailsDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
-import com.tecnocampus.LS2.protube_back.repository.CommentRepository;
-import com.tecnocampus.LS2.protube_back.repository.VideoRepository;
+import com.tecnocampus.LS2.protube_back.dto.VideoUploadDTO;
+import com.tecnocampus.LS2.protube_back.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +17,17 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final CommentRepository commentRepository;
+    private final CategoryRepository categoryRepository;
+    private final TagService tagService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public VideoService(VideoRepository videoRepository, CommentRepository commentRepository) {
+    public VideoService(VideoRepository videoRepository, CommentRepository commentRepository, CategoryRepository categoryRepository, TagService tagService, UserRepository userRepository) {
+        this.userRepository = userRepository;
         this.videoRepository = videoRepository;
         this.commentRepository = commentRepository;
+        this.categoryRepository = categoryRepository;
+        this.tagService = tagService;
     }
 
 
@@ -42,6 +48,25 @@ public class VideoService {
         return videoRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Video createVideo(VideoUploadDTO videoUploadDTO) {
+        Video video = new Video();
+
+        userRepository.findById(videoUploadDTO.getUserid()).ifPresent(video::setUploader);
+        video.setTitle(videoUploadDTO.getTitle());
+        video.setUrl(videoUploadDTO.getUrl());
+        video.setThumbnailUrl(videoUploadDTO.getThumbnailUrl());
+        video.setMeta(new Meta());
+        video.getMeta().setDescription(videoUploadDTO.getDescription());
+
+        List<Category> categories = categoryRepository.findAllById(videoUploadDTO.getCategoryIds());
+        video.setCategories(categories);
+
+        List<Tag> tags = tagService.createOrFetchTags(videoUploadDTO.getTagIds());
+        video.setTags(tags);
+
+        return videoRepository.save(video);
     }
 
     private VideoSummaryDTO convertToDTO(Video video) {

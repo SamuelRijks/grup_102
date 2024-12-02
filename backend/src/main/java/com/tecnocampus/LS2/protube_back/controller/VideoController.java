@@ -3,6 +3,7 @@ package com.tecnocampus.LS2.protube_back.controller;
 import com.tecnocampus.LS2.protube_back.domain.Video;
 import com.tecnocampus.LS2.protube_back.dto.VideoDetailsDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
+import com.tecnocampus.LS2.protube_back.dto.VideoUploadDTO;
 import com.tecnocampus.LS2.protube_back.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,5 +70,11 @@ public class VideoController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<Video> uploadVideo(@RequestBody VideoUploadDTO videoUploadDTO) {
+        Video video = videoService.createVideo(videoUploadDTO);
+        return ResponseEntity.ok(video);
     }
 }
