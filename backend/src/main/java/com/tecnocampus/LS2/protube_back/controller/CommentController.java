@@ -23,4 +23,28 @@ public class CommentController {
         Comment comment = commentService.createComment(commentDTO);
         return ResponseEntity.ok(comment);
     }
+
+    @DeleteMapping("/delete/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long commentId, @RequestParam Long userId) {
+        commentService.deleteComment(commentId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/update/{commentId}")
+    public ResponseEntity<Comment> updateComment(@PathVariable Long commentId, @RequestParam Long userId, @RequestBody String content) {
+        Comment updatedComment = commentService.updateComment(commentId, userId, content);
+        return ResponseEntity.ok(updatedComment);
+    }
+
+    @PostMapping("/{commentId}/like")
+    public ResponseEntity<Void> likeComment(@PathVariable Long commentId, @RequestParam Long userId) {
+        commentService.likeComment(commentId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{commentId}/dislike")
+    public ResponseEntity<Void> dislikeComment(@PathVariable Long commentId, @RequestParam Long userId) {
+        commentService.dislikeComment(commentId, userId);
+        return ResponseEntity.ok().build();
+    }
 }

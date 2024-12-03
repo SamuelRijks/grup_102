@@ -36,4 +36,39 @@ public class CommentService {
 
         return commentRepository.save(comment);
     }
+
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+        if (!comment.getAuthor().getId().equals(userId)) {
+            throw new RuntimeException("User not authorized to delete this comment");
+        }
+        commentRepository.delete(comment);
+    }
+
+    public Comment updateComment(Long commentId, Long userId, String content) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+        if (!comment.getAuthor().getId().equals(userId)) {
+            throw new RuntimeException("User not authorized to update this comment");
+        }
+        comment.setContent(content);
+        return commentRepository.save(comment);
+    }
+
+    public void likeComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+        // Logic to check if the user has already liked the comment can be added here
+        comment.setLikes(comment.getLikes() + 1);
+        commentRepository.save(comment);
+    }
+
+    public void dislikeComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+        // Logic to check if the user has already disliked the comment can be added here
+        comment.setDislikes(comment.getDislikes() + 1);
+        commentRepository.save(comment);
+    }
 }

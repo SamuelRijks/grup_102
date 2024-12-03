@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @Setter
 public class VideoUploadDTO {
-    private Long userid;
+    private Long userid;   // el id de l'usuari que fa la petició
     private String title;
     private String description;
     private String url;

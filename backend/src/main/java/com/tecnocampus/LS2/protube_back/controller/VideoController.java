@@ -77,4 +77,24 @@ public class VideoController {
         Video video = videoService.createVideo(videoUploadDTO);
         return ResponseEntity.ok(video);
     }
+
+    @PutMapping("/update/{videoId}") //No s'utilitzen els atributs url de VideoUploadDTO
+    public ResponseEntity<Video> updateVideo(@PathVariable Long videoId, @RequestBody VideoUploadDTO videoUploadDTO) {
+        Video updatedVideo = videoService.updateVideo(videoId, videoUploadDTO);
+        return ResponseEntity.ok(updatedVideo);
+    }
+
+    @PostMapping("/{videoId}/like")
+    public ResponseEntity<Void> likeVideo(@PathVariable Long videoId, @RequestParam Long userId) {
+        videoService.likeVideo(videoId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{videoId}/dislike")
+    public ResponseEntity<Void> dislikeVideo(@PathVariable Long videoId, @RequestParam Long userId) {
+        videoService.dislikeVideo(videoId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+
 }

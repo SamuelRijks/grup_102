@@ -78,13 +78,42 @@ public class VideoService {
         return dto;
     }
 
-    private CommentDTO toCommentDTO(Comment comment) {
-        CommentDTO dto = new CommentDTO();
-        dto.setContent(comment.getContent());
-        dto.setAuthor(comment.getAuthor().getUsername());
-        dto.setTimestamp(comment.getTimestamp());
-        dto.setLikes(comment.getLikes());
-        dto.setDislikes(comment.getDislikes());
-        return dto;
+    public Video updateVideo(Long videoId, VideoUploadDTO videoUploadDTO) {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+
+        User user = userRepository.findById(videoUploadDTO.getUserid())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!video.getUploader().getId().equals(user.getId())) {
+            throw new RuntimeException("User not authorized to update this video");
+        }
+
+        video.setTitle(videoUploadDTO.getTitle());
+        video.getMeta().setDescription(videoUploadDTO.getDescription());
+
+        List<Category> categories = categoryRepository.findAllById(videoUploadDTO.getCategoryIds());
+        video.setCategories(categories);
+
+        List<Tag> tags = tagService.createOrFetchTags(videoUploadDTO.getTagIds());
+        video.setTags(tags);
+
+        return videoRepository.save(video);
+    }
+
+    public void likeVideo(Long videoId, Long userId) {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+        // Logic to check if the user has already liked the video can be added here
+        video.setLikes(video.getLikes() + 1);
+        videoRepository.save(video);
+    }
+
+    public void dislikeVideo(Long videoId, Long userId) {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new RuntimeException("Video not found"));
+        // Logic to check if the user has already disliked the video can be added here
+        video.setDislikes(video.getDislikes() + 1);
+        videoRepository.save(video);
     }
 }
