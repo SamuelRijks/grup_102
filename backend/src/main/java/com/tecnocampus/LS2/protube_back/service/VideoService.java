@@ -4,11 +4,19 @@ import com.tecnocampus.LS2.protube_back.domain.*;
 import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoDetailsDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
+import com.tecnocampus.LS2.protube_back.repository.CategoryRepository;
 import com.tecnocampus.LS2.protube_back.repository.CommentRepository;
+import com.tecnocampus.LS2.protube_back.repository.UserRepository;
 import com.tecnocampus.LS2.protube_back.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,11 +25,16 @@ public class VideoService {
 
     private final VideoRepository videoRepository;
     private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
     @Autowired
-    public VideoService(VideoRepository videoRepository, CommentRepository commentRepository) {
+    public VideoService(VideoRepository videoRepository, CommentRepository commentRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
         this.videoRepository = videoRepository;
         this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
+
     }
 
 
@@ -61,5 +74,43 @@ public class VideoService {
         dto.setLikes(comment.getLikes());
         dto.setDislikes(comment.getDislikes());
         return dto;
+    }
+
+    public void createVideoWithFileAndUser(Long id, String title, String fileName, Long userId,
+                                           Integer height, Integer width, Double duration,
+                                           String thumbnailPath, String description) {
+        // Find the user by ID
+        User uploader = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuari no trobat"));
+
+        // Create the video
+        Video video = new Video();
+        video.setId(id);
+        video.setTitle(title);
+        video.setUrl("/api/videos/" + fileName); // Set the public URL for the video
+        video.setUploadDate(LocalDateTime.now());
+        video.setUploader(uploader); // Associate the user as the uploader
+        video.setHeight(height);
+        video.setWidth(width);
+        video.setDuration(duration); // Set the duration
+        video.setThumbnailUrl("/api/images/" + id + ".webp"); // Set the public URL for the thumbnail
+        video.setLikes(0);
+        video.setDislikes(0);
+        video.setViews(0);
+
+        // Create and set metadata
+        Meta meta = new Meta();
+        meta.setDescription(description); // Assign the description
+        video.setMeta(meta);
+
+        // Save the video in the database
+        videoRepository.save(video);
+    }
+
+    public Long getNextVideoId() {
+        return videoRepository.findAll().stream()
+                .mapToLong(Video::getId)
+                .max()
+                .orElse(0L) + 1;
     }
 }

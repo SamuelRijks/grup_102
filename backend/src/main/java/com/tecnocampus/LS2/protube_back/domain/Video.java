@@ -49,10 +49,10 @@ public class Video {
     )
     private List<Category> categories;
 
-    // Altres camps i mètodes...
+
     @Getter
     @Setter
     @Embedded
-    private Meta meta; // Aquí s'inclou el camp `meta`
+    private Meta meta;
 }
 

@@ -56,11 +56,11 @@ public class AppStartupRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (loadInitialData) {
-//           commentRepository.deleteAll(); // Primero elimina los comentarios
-////            userRepository.deleteAll();    // Luego elimina los usuarios
-////            videoRepository.deleteAll();
-////            categoryRepository.deleteAll();
-////            tagRepository.deleteAll();
+            commentRepository.deleteAll(); // Primero elimina los comentarios
+            userRepository.deleteAll();    // Luego elimina los usuarios
+            videoRepository.deleteAll();
+            categoryRepository.deleteAll();
+            tagRepository.deleteAll();
             loadVideosFromDirectory();
         }
     }
@@ -152,6 +152,7 @@ public class AppStartupRunner implements ApplicationRunner {
                                                     newUser.setPassword(generateRandomPassword());
                                                     return userRepository.save(newUser);
                                                 });
+                                        videoRepository.save(video); ///HO HE AFEGIT JO!!! NO SE SI ES CORRECTE
                                         Comment comment = new Comment();
                                         comment.setContent(commentNode.path("text").asText());
                                         comment.setAuthor(commentAuthor);
