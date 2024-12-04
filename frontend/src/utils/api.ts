@@ -100,6 +100,7 @@ export async function fetchVideoDetails(id: number): Promise<VideoDetails> {
     console.error(`Error fetching video details for video ID ${id}:`, error);
     throw error;
   }
+  
 }
 
 interface VideoSummaryDTO {
@@ -129,4 +130,76 @@ interface CommentDTO {
   timestamp: number[];
   likes: number;
   dislikes: number;
+}
+
+/*export async function uploadVideo(videoData: { title: string; file: File; userId: number }): Promise<Video> {
+  const formData = new FormData();
+
+  // Populate the FormData object
+  formData.append('title', videoData.title);
+  formData.append('file', videoData.file);
+   formData.append('userId', videoData.userId.toString()); 
+
+  try {
+    // Make the API request
+    const response = await fetch(`${VITE_API_DOMAIN}/api/videos/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text(); // Capture raw error response
+      console.error('Upload Error Raw Response:', errorText);
+      throw new Error(errorText);
+    }
+
+    const createdVideo = await response.json();
+
+    // Ensure the created video conforms to the Video interface
+    return {
+      id: createdVideo.id,
+      title: createdVideo.title,
+      user: createdVideo.user || 'Unknown User', // Fallback for user
+      thumbnail: `${VITE_API_DOMAIN}/api/images/${createdVideo.id}.webp`,
+    };
+  } catch (error) {
+    console.error('Error uploading video:', error);
+    throw error; // Rethrow the error to the caller
+  }
+}*/
+export async function uploadVideo(videoData: { title: string; file: File; userId: number }): Promise<Video> {
+  console.log('uploadVideo called with:', videoData); // Log input parameters
+
+  const formData = new FormData();
+  formData.append('title', videoData.title);
+  formData.append('file', videoData.file);
+  formData.append('userId', videoData.userId.toString());
+
+  try {
+      console.log('Sending request to API'); // Log before sending the request
+      const response = await fetch(`${VITE_API_DOMAIN}/api/videos/upload`, {
+          method: 'POST',
+          body: formData,
+      });
+
+      console.log('Received response from API'); // Log after the response is received
+
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Upload Error Raw Response:', errorText);
+          throw new Error(errorText);
+      }
+
+      const createdVideo = await response.json();
+      console.log('API Response:', createdVideo); // Log the parsed response
+      return {
+          id: createdVideo.id,
+          title: createdVideo.title,
+          user: createdVideo.user || 'Unknown User',
+          thumbnail: `${VITE_API_DOMAIN}/api/images/${createdVideo.id}.webp`,
+      };
+  } catch (error) {
+      console.error('Error uploading video:', error);
+      throw error; // Propagate the error
+  }
 }

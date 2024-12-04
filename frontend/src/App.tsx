@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import VideoList from './components/VideoList';
 import VideoPage from './components/VideoPage';
 import UserPage from './components/UserPage';
@@ -55,15 +55,15 @@ const App: React.FC = () => {
               <h1>Protube</h1>
             </div>
 
-            {/* Search Bar */}
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder="Search videos..."
-                className="search-input"
-              />
-              <button className="search-button">Search</button>
-            </div>
+          {/* Search Bar */}
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search videos..."
+              className="search-input"
+            />
+            <button className="search-button">Search</button>
+          </div>
 
             {/* User Profile */}
             <div className="user-profile">
