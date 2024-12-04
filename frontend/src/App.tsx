@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import VideoList from './components/VideoList';
 import VideoPage from './components/VideoPage';
-import UserPage from './components/UserPage';
-import MyCommentsPage from './components/MyCommentsPage';
-import MyVideosPage from './components/MyVideosPage';
+import UserProfile from './components/UserProfile';
 import { fetchVideos, Video } from './utils/api';
 import './App.css';
 import logo from './assets/logo.png';
@@ -13,8 +11,6 @@ import userIcon from './assets/user-icon.png';
 const App: React.FC = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
-  const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
     async function loadVideos() {
@@ -29,31 +25,25 @@ const App: React.FC = () => {
     loadVideos();
   }, []);
 
-  const handleProfileClick = () => {
-    if (username) {
-      setShowDialog(!showDialog);
-    } else {
-      // Redirigir a la página de inicio de sesión si no está autenticado
-      window.location.href = '/user';
-    }
-  };
+  const addVideo = (newVideo: Video) => {
+    setVideos((prevVideos) => [newVideo, ...prevVideos]); // Add the video to the top
+};
 
-  const handleLogout = () => {
-    setUsername(null);
-    setShowDialog(false);
-  };
+  const Navbar: React.FC = () => {
+    const navigate = useNavigate();
+    const userId = "13000";
+    const handleProfileClick = () => {
+      navigate(`/profile/${userId}`); // Redirigeix a la pàgina de perfil
+    };
 
-  return (
-    <Router>
-      <div className="App">
-        {/* Navbar */}
-        <nav className="navbar">
-          <div className="nav-content">
-            {/* Logo */}
-            <div className="logo">
-              <img src={logo} alt="Protube Logo" className="logo-img" />
-              <h1>Protube</h1>
-            </div>
+    return (
+      <nav className="navbar">
+        <div className="nav-content">
+          {/* Logo */}
+          <div className="logo">
+            <img src={logo} alt="Protube Logo" className="logo-img" />
+            <h1>Protube</h1>
+          </div>
 
           {/* Search Bar */}
           <div className="search-bar">
@@ -65,26 +55,19 @@ const App: React.FC = () => {
             <button className="search-button">Search</button>
           </div>
 
-            {/* User Profile */}
-            <div className="user-profile">
-              <img
-                src={userIcon}
-                alt="User Profile"
-                className="profile-pic"
-                onClick={handleProfileClick}
-              />
-              {username && showDialog && (
-                <div className="profile-dialog">
-                  <p>Welcome {username}</p>
-                  <Link to="/my-comments">My Comments</Link>
-                  <Link to="/my-videos">My Videos</Link>
-                  <button className="logout" onClick={handleLogout}>Log Out</button>
-                </div>
-              )}
-            </div>
+          {/* User Profile */}
+          <div className="user-profile" onClick={handleProfileClick}>
+            <img src={userIcon} alt="User Profile" className="profile-pic" />
           </div>
-        </nav>
+        </div>
+      </nav>
+    );
+  };
 
+  return (
+    <Router>
+      <div className="App">
+        <Navbar />
         {/* Error Message */}
         {error && <p className="error">{error}</p>}
 
@@ -92,15 +75,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<VideoList videos={videos} />} />
           <Route path="/video/:id" element={<VideoPage />} />
-          <Route path="/user" element={<UserPage setUsername={setUsername} />} />
-          <Route
-            path="/my-comments"
-            element={username ? <MyCommentsPage username={username} /> : <Navigate to="/user" />}
-          />
-          <Route
-            path="/my-videos"
-            element={username ? <MyVideosPage username={username} /> : <Navigate to="/user" />}
-          />
+          <Route path="/profile/:userId"  element={<UserProfile addVideo={addVideo} />} /> {/* Nova ruta */}
         </Routes>
       </div>
     </Router>
