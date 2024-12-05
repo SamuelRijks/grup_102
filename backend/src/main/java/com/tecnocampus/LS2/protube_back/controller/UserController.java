@@ -3,6 +3,8 @@ package com.tecnocampus.LS2.protube_back.controller;
 import com.tecnocampus.LS2.protube_back.domain.Comment;
 import com.tecnocampus.LS2.protube_back.domain.User;
 import com.tecnocampus.LS2.protube_back.domain.Video;
+import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
+import com.tecnocampus.LS2.protube_back.dto.CommentResponseDTO;
 import com.tecnocampus.LS2.protube_back.dto.UserDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
 import com.tecnocampus.LS2.protube_back.service.UserService;
@@ -29,9 +31,15 @@ public class UserController {
 
 
     @GetMapping("/{username}/comments")
-    public List<Comment> getUserComments(@PathVariable String username) {
+    public List<CommentResponseDTO> getUserComments(@PathVariable String username) {
         User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getComments();
+        System.out.println("Comments for user " + username + ": " + user.getComments());
+
+        List<CommentResponseDTO> comments = user.getComments().stream()
+                .map(comment -> new CommentResponseDTO(comment))
+                .collect(Collectors.toList());
+
+        return comments;
     }
 
     @GetMapping("/{username}/videos")

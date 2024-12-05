@@ -1,6 +1,7 @@
 package com.tecnocampus.LS2.protube_back.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,5 +35,9 @@ public class Comment {
     private int likes;
     private int dislikes;
 
-
+    // Custom getter to expose only video_id
+    @JsonProperty("video_id")
+    public Long getVideoId() {
+        return video != null ? video.getId() : null; // Return video id
+    }
 }

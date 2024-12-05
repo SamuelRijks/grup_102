@@ -27,7 +27,17 @@ const MyCommentsPage: React.FC<MyCommentsPageProps> = ({ username }) => {
                         throw new Error('Failed to fetch comments');
                     }
                     const data = await response.json();
-                    setComments(data);
+                    console.log('Comments received:', data);
+
+                    // Transform the data to the desired format
+                    const transformedComments = data.map((comment: any) => ({
+                        id: comment.id,
+                        content: comment.content,
+                        videoTitle: comment.videoTitle,
+                        videoId: comment.videoId,
+                    }));
+
+                    setComments(transformedComments);
                 } catch (err) {
                     setError((err as Error).message);
                 } finally {
