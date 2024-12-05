@@ -51,3 +51,21 @@
     color: red;
     font-weight: bold;
 }
+
+.video-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  
+  .video-item {
+    width: 200px;
+    text-align: center;
+  }
+  
+  .video-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+  }
+  
