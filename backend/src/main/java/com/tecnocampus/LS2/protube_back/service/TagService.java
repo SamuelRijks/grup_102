@@ -18,11 +18,11 @@ public class TagService {
         this.tagRepository = tagRepository;
     }
 
-    public List<Tag> createOrFetchTags(List<Long> tagIds) {
-        return tagIds.stream()
-                .map(tagId -> tagRepository.findById(tagId).orElseGet(() -> {
+    public List<Tag> createOrFetchTags(List<String> tagNames) {
+        return tagNames.stream()
+                .map(tagName -> tagRepository.findByName(tagName).orElseGet(() -> {
                     Tag newTag = new Tag();
-                    newTag.setId(tagId);
+                    newTag.setName(tagName);
                     return tagRepository.save(newTag);
                 }))
                 .collect(Collectors.toList());

@@ -6,10 +6,15 @@ import com.tecnocampus.LS2.protube_back.dto.VideoDetailsDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoUploadDTO;
 import com.tecnocampus.LS2.protube_back.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,24 +55,75 @@ public class VideoService {
                 .collect(Collectors.toList());
     }
 
-    public Video createVideo(VideoUploadDTO videoUploadDTO) {
-        Video video = new Video();
+    public Video uploadVideo(VideoUploadDTO videoUploadDTO) {
+        // Validate User
+        User uploader = userRepository.findById(videoUploadDTO.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        userRepository.findById(videoUploadDTO.getUserid()).ifPresent(video::setUploader);
+        List<String> categoryNames = videoUploadDTO.getCategories();
+        System.out.println("Original categoryNames before trimming: " + categoryNames);
+        System.out.println("categoryNames is null: " + (categoryNames == null));
+
+        // Check if categoryNames is effectively empty
+        boolean isEffectivelyEmpty = categoryNames == null || categoryNames.isEmpty() ||
+                categoryNames.stream().allMatch(name -> name.trim().isEmpty() || name.equals("[]"));
+
+        if (isEffectivelyEmpty) {
+            categoryNames = Collections.emptyList(); // Assign an empty list
+            System.out.println("categoryNames is null or effectively empty");
+        } else {
+            System.out.println("categoryNames is not null or effectively empty");
+            // Process the non-empty categoryNames
+            categoryNames = categoryNames.stream()
+                    .map(name -> name.substring(1, name.length() - 1))
+                    .flatMap(name -> Arrays.stream(name.replaceAll("\\[\\[|\\]\\]", "").split(","))) // Remove outer brackets and split by comma
+                    .map(String::trim) // Remove leading/trailing spaces
+                    .map(name -> name.replace("\"", "")) // Remove quotes if they exist
+                    .collect(Collectors.toList());
+        }
+
+        // Print processed categoryNames
+        System.out.println("Processed categoryNames: " + categoryNames);
+
+        List<Category> categories = null;
+        if (!categoryNames.isEmpty()) {
+            categories = categoryRepository.findAllByNameIn(categoryNames);
+            if (categories.isEmpty()) {
+                throw new IllegalArgumentException("Some category names are invalid or not found.");
+            }
+        }
+
+
+        // Validate Tags
+        List<Tag> tags = null;
+        if (videoUploadDTO.getTags() != null && !videoUploadDTO.getTags().isEmpty()) {
+            tags = tagService.createOrFetchTags(videoUploadDTO.getTags());
+        }
+
+        Long nextId = getNextVideoId();
+        System.out.println("nextId: " + nextId);
+
+        // Create Video
+        Video video = new Video();
+        video.setId(nextId);
+        video.setUploader(uploader);
         video.setTitle(videoUploadDTO.getTitle());
         video.setUrl(videoUploadDTO.getUrl());
         video.setThumbnailUrl(videoUploadDTO.getThumbnailUrl());
-        video.setMeta(new Meta());
-        video.getMeta().setDescription(videoUploadDTO.getDescription());
+        video.setWidth(videoUploadDTO.getWidth());
+        video.setHeight(videoUploadDTO.getHeight());
+        video.setDuration(videoUploadDTO.getDuration());
 
-        List<Category> categories = categoryRepository.findAllById(videoUploadDTO.getCategoryIds());
+
+        Meta meta = new Meta();
+        meta.setDescription(videoUploadDTO.getDescription());
         video.setCategories(categories);
-
-        List<Tag> tags = tagService.createOrFetchTags(videoUploadDTO.getTagIds());
         video.setTags(tags);
+        video.setMeta(meta);
 
         return videoRepository.save(video);
     }
+
 
     private VideoSummaryDTO convertToDTO(Video video) {
         VideoSummaryDTO dto = new VideoSummaryDTO();
@@ -82,7 +138,7 @@ public class VideoService {
         Video video = videoRepository.findById(videoId)
                 .orElseThrow(() -> new RuntimeException("Video not found"));
 
-        User user = userRepository.findById(videoUploadDTO.getUserid())
+        User user = userRepository.findById(videoUploadDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!video.getUploader().getId().equals(user.getId())) {
@@ -92,11 +148,18 @@ public class VideoService {
         video.setTitle(videoUploadDTO.getTitle());
         video.getMeta().setDescription(videoUploadDTO.getDescription());
 
-        List<Category> categories = categoryRepository.findAllById(videoUploadDTO.getCategoryIds());
-        video.setCategories(categories);
+        List<Category> categories = null;
+        if (videoUploadDTO.getCategories() != null && !videoUploadDTO.getCategories().isEmpty()) {
+            categories = categoryRepository.findAllByNameIn(videoUploadDTO.getCategories());
+            if (categories.size() != videoUploadDTO.getCategories().size()) {
+                throw new IllegalArgumentException("Some category names are invalid or not found.");
+            }
+        }
 
-        List<Tag> tags = tagService.createOrFetchTags(videoUploadDTO.getTagIds());
-        video.setTags(tags);
+        List<Tag> tags = null;
+        if (videoUploadDTO.getTags() != null && !videoUploadDTO.getTags().isEmpty()) {
+            tags = tagService.createOrFetchTags(videoUploadDTO.getTags());
+        }
 
         return videoRepository.save(video);
     }
@@ -115,5 +178,12 @@ public class VideoService {
         // Logic to check if the user has already disliked the video can be added here
         video.setDislikes(video.getDislikes() + 1);
         videoRepository.save(video);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Long getNextVideoId() {
+        Long maxId = videoRepository.findMaxId(); // Assuming findMaxId() is implemented
+        return (maxId != null ? maxId : 0L) + 1;
     }
 }

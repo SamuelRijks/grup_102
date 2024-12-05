@@ -2,6 +2,7 @@ package com.tecnocampus.LS2.protube_back.repository;
 
 import com.tecnocampus.LS2.protube_back.domain.Video;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -9,4 +10,7 @@ import java.util.Optional;
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
     Optional<Object> findByTitle(String videoTitle);
+
+    @Query("SELECT MAX(v.id) FROM Video v")
+    Long findMaxId();
 }

@@ -56,11 +56,11 @@ public class AppStartupRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (loadInitialData) {
-//           commentRepository.deleteAll(); // Primero elimina los comentarios
-////            userRepository.deleteAll();    // Luego elimina los usuarios
-////            videoRepository.deleteAll();
-////            categoryRepository.deleteAll();
-////            tagRepository.deleteAll();
+           commentRepository.deleteAll(); // Primero elimina los comentarios
+            userRepository.deleteAll();    // Luego elimina los usuarios
+           videoRepository.deleteAll();
+           categoryRepository.deleteAll();
+            tagRepository.deleteAll();
             loadVideosFromDirectory();
         }
     }
@@ -136,6 +136,7 @@ public class AppStartupRunner implements ApplicationRunner {
                                 meta.setDescription(rootNode.path("meta").path("description").asText());
                                 video.setMeta(meta);
                             }
+                            videoRepository.save(video);
 
                             // Process comments
                             List<Comment> comments = new ArrayList<>();
@@ -169,11 +170,13 @@ public class AppStartupRunner implements ApplicationRunner {
                                     }
                                 }
                             }
+                            videoRepository.save(video);
 
                             // Set comments to video and meta
                             video.setComments(comments); // Asignar comentarios al video
                             video.getMeta().setComments(comments);  // Asignar comentarios al meta
 
+                            videoRepository.save(video);
 
                             // Process categories
                             List<Category> categories = new ArrayList<>();
