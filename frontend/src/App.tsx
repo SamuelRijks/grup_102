@@ -40,7 +40,13 @@ const App: React.FC = () => {
 
   const handleLogout = () => {
     setUsername(null);
+    localStorage.removeItem('username');
     setShowDialog(false);
+  };
+
+  const handleSetUsername = (username: string) => {
+    setUsername(username);
+    localStorage.setItem('username', username);
   };
 
   return (
@@ -51,8 +57,10 @@ const App: React.FC = () => {
           <div className="nav-content">
             {/* Logo */}
             <div className="logo">
-              <img src={logo} alt="Protube Logo" className="logo-img" />
-              <h1>Protube</h1>
+              <Link to="/">
+                <img src={logo} alt="Protube Logo" className="logo-img" />
+                <h1 className="logo-title">Protube</h1>
+              </Link>
             </div>
 
             {/* Search Bar */}
@@ -92,7 +100,7 @@ const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<VideoList videos={videos} />} />
           <Route path="/video/:id" element={<VideoPage username={username} />} />
-          <Route path="/user" element={<UserPage setUsername={setUsername} />} />
+          <Route path="/user" element={<UserPage setUsername={handleSetUsername} />} />
           <Route
             path="/my-comments"
             element={username ? <MyCommentsPage username={username} /> : <Navigate to="/user" />}

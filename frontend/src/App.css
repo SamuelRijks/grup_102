@@ -45,20 +45,47 @@ body {
 }
 
 /* Logo Section */
+/* Logo Section */
 .logo {
     display: flex;
     align-items: center;
-    /* Center vertically */
+    /* Alineación vertical */
     gap: 12px;
-    /* Add spacing between icon and text */
+    /* Espacio entre la imagen y el título */
+}
+
+.logo a {
+    display: flex;
+    /* Asegura que el enlace también sea flexbox */
+    align-items: center;
+    /* Alineación vertical dentro del enlace */
+    text-decoration: none;
+    /* Elimina subrayado */
+    color: inherit;
+    /* Usa el color del contenedor padre */
 }
 
 .logo-img {
     width: 48px;
-    /* Slightly larger size for prominence */
+    /* Tamaño de la imagen */
     height: 48px;
     object-fit: contain;
 }
+
+.logo-title {
+    font-size: 1.5rem;
+    /* Tamaño del título */
+    font-weight: 700;
+    /* Negrita */
+    color: #ffffff;
+    /* Color blanco para el texto */
+    margin: 0;
+    /* Quita márgenes del <h1> */
+    line-height: 1;
+    /* Alineación precisa */
+}
+
+
 
 /* Search Bar */
 search-bar {
