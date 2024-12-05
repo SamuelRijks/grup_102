@@ -27,12 +27,13 @@ public class CommentService {
     public Comment createComment(CommentDTO commentDTO) {
         Comment comment = new Comment();
 
-        User user = userRepository.findById(commentDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByUsername(commentDTO.getAuthor()).orElseThrow(() -> new RuntimeException("User not found"));
         Video video = videoRepository.findById(commentDTO.getVideoId()).orElseThrow(() -> new RuntimeException("Video not found"));
 
         comment.setAuthor(user);
         comment.setVideo(video);
         comment.setContent(commentDTO.getContent());
+        comment.setTimestamp(commentDTO.getTimestamp());
 
         return commentRepository.save(comment);
     }

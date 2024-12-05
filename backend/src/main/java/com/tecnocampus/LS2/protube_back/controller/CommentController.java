@@ -20,6 +20,7 @@ public class CommentController {
 
     @PostMapping("/add")
     public ResponseEntity<Comment> addComment(@RequestBody CommentDTO commentDTO) {
+        System.out.println("Author " + commentDTO.getAuthor());
         Comment comment = commentService.createComment(commentDTO);
         return ResponseEntity.ok(comment);
     }

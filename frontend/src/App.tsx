@@ -91,7 +91,7 @@ const App: React.FC = () => {
         {/* Main Content */}
         <Routes>
           <Route path="/" element={<VideoList videos={videos} />} />
-          <Route path="/video/:id" element={<VideoPage />} />
+          <Route path="/video/:id" element={<VideoPage username={username} />} />
           <Route path="/user" element={<UserPage setUsername={setUsername} />} />
           <Route
             path="/my-comments"

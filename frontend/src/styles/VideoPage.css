@@ -1,5 +1,4 @@
-/* VideoPage.css */
-
+/* General styles for VideoPage */
 .video-page {
   padding: 20px;
   text-align: center;
@@ -8,6 +7,7 @@
   /* Limitar el ancho máximo de la página */
 }
 
+/* Video container */
 .video-container {
   display: flex;
   justify-content: center;
@@ -36,6 +36,7 @@
   /* Bordes redondeados para el video */
 }
 
+/* Video information */
 .video-info {
   text-align: left;
   margin-top: 20px;
@@ -70,7 +71,7 @@
   margin-bottom: 5px;
 }
 
-/* Estilos mejorados para la sección de comentarios */
+/* Comments section */
 .comments-section {
   margin-top: 20px;
   padding: 10px;
@@ -79,34 +80,76 @@
   background-color: #f9f9f9;
 }
 
-.comments-section h3 {
-  font-size: 1.5em;
-  margin-bottom: 10px;
+/* Formulario para añadir comentarios */
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-.comment {
+.comment-form textarea {
+  width: 100%;
+  height: 80px;
   padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: none;
+}
+
+.comment-form button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Lista de comentarios */
+.comments-list {
+  list-style-type: none;
+  /* Eliminar los puntos de viñeta */
+  padding: 0;
+  text-align: left;
+  /* Alinear toda la lista a la izquierda */
+}
+
+/* Comentarios individuales */
+.comment-item {
+  margin-bottom: 15px;
+  /* Separar comentarios entre sí */
+  padding: 10px;
+  text-align: left;
+  /* Alinear el texto del comentario a la izquierda */
   border-bottom: 1px solid #ddd;
+  /* Línea divisoria entre comentarios */
 }
 
-.comment:last-child {
+.comment-item:last-child {
   border-bottom: none;
+  /* Eliminar la línea del último comentario */
 }
 
-.comment p {
+.comment-item p {
   margin: 5px 0;
 }
 
-.comment .author {
+.comment-item .author {
   font-weight: bold;
 }
 
-.comment .timestamp {
+.comment-item .timestamp {
   font-size: 0.9em;
   color: #777;
 }
 
-.comment .likes-dislikes {
+.comment-item .likes-dislikes {
   font-size: 0.9em;
   color: #555;
 }

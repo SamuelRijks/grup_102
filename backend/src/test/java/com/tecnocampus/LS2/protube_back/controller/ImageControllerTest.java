@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -24,8 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 public class ImageControllerTest {
 
-    @Value("${pro_tube.store.dir}")
-    private String storeDir;
+    @Mock
+    private Path mockPath;
 
     @InjectMocks
     private ImageController imageController;
@@ -34,20 +35,18 @@ public class ImageControllerTest {
 
     @BeforeEach
     public void setup() {
+        // Simula el directorio
+        mockPath = Paths.get("/mock/store");
+        imageController = new ImageController(mockPath.toString());
         mockMvc = MockMvcBuilders.standaloneSetup(imageController).build();
     }
 
     @Test
     public void testServeFile() throws Exception {
-        Path rootLocation = Paths.get(storeDir);
-        Path file = rootLocation.resolve("0.webp");
+        Path file = mockPath.resolve("0.webp");
         Resource resource = new UrlResource(file.toUri());
 
-        when(imageController.serveFile("'0.webp")).thenReturn(
-                ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource)
-        );
+        when(mockPath.resolve("0.webp")).thenReturn(file);
 
         mockMvc.perform(get("/api/images/0.webp"))
                 .andExpect(status().isOk())

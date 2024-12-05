@@ -5,7 +5,7 @@ const VITE_API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 if (!VITE_API_DOMAIN) {
   throw new Error('VITE_API_DOMAIN is not defined');
 }
-//aaa
+
 export interface Video {
   id: number;
   title: string;
@@ -126,6 +126,7 @@ interface VideoDetailsDTO {
 interface CommentDTO {
   content: string;
   author: string;
+  videoId: number;
   timestamp: number[];
   likes: number;
   dislikes: number;
