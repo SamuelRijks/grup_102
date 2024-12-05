@@ -22,6 +22,7 @@ interface Tag {
 }
 
 interface UserComment {
+  commentId: number;
   text: string;
   author: string;
   timestamp: Date;
@@ -88,6 +89,7 @@ export async function fetchVideoDetails(id: number): Promise<VideoDetails> {
         categories: videoDetails.categories ? videoDetails.categories.map((category: Category) => category.name) : [],
         tags: videoDetails.tags ? videoDetails.tags.map((tag: Tag) => tag.name) : [],
         comments: videoDetails.comments ? videoDetails.comments.map((comment: CommentDTO) => ({
+          commentId: comment.commentId,
           text: comment.content,
           author: comment.author,
           timestamp: new Date(Date.UTC(...(comment.timestamp as [number, number, number, number, number, number]))), // Convertir array a Date
@@ -124,6 +126,7 @@ interface VideoDetailsDTO {
 }
 
 interface CommentDTO {
+  commentId: number;
   content: string;
   author: string;
   videoId: number;

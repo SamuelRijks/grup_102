@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class CommentDTO {
+    private Long commentId; // Identificador del comentari
     private String content; // Text del comentari
     private Long videoId;  // Identificador del vídeo al que pertany el comentari
     private String author;  // Nom de l'autor
@@ -18,6 +19,7 @@ public class CommentDTO {
     private int dislikes;   // Número de "No m'agrada"
 
 public CommentDTO(Comment comment) {
+    this.commentId = comment.getId();
     this.content = comment.getContent();
     this.author = comment.getAuthor().getUsername();
     this.userId = comment.getAuthor().getId();

@@ -152,7 +152,7 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
             fetchUserVideos();
         }
     }, [username]);
-    
+
 
     return (
         <div className="my-videos-page">
@@ -208,16 +208,16 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
             <ul>
                 {videos.map((video) => (
                     <li key={video.id}> {/* Add the unique key prop */}
-                    <Link to={`/video/${video.id}`}>
-                        <img
-                        src={`http://localhost:8080/api/images/${video.id}.webp`}   
-                        alt={video.title}
-                        />
-                        <p>{video.title}</p>
-                    </Link>
+                        <Link to={`/video/${video.id}`}>
+                            <img
+                                src={`http://localhost:8080/api/images/${video.id}.webp`}
+                                alt={video.title}
+                            />
+                            <p>{video.title}</p>
+                        </Link>
                     </li>
                 ))}
-                </ul>
+            </ul>
         </div>
     );
 };
