@@ -33,7 +33,6 @@ public class UserController {
     @GetMapping("/{username}/comments")
     public List<CommentResponseDTO> getUserComments(@PathVariable String username) {
         User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
-        System.out.println("Comments for user " + username + ": " + user.getComments());
 
         List<CommentResponseDTO> comments = user.getComments().stream()
                 .map(comment -> new CommentResponseDTO(comment))
