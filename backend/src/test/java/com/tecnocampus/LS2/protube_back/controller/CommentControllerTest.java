@@ -1,29 +1,25 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
 import com.tecnocampus.LS2.protube_back.domain.Comment;
-import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
-import com.tecnocampus.LS2.protube_back.service.CommentService;
 import com.tecnocampus.LS2.protube_back.domain.User;
 import com.tecnocampus.LS2.protube_back.domain.Video;
-import com.tecnocampus.LS2.protube_back.repository.CommentRepository;
-import com.tecnocampus.LS2.protube_back.repository.UserRepository;
-import com.tecnocampus.LS2.protube_back.repository.VideoRepository;
+import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
+import com.tecnocampus.LS2.protube_back.service.CommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-/*
+
 @ExtendWith(MockitoExtension.class)
 public class CommentControllerTest {
 
@@ -33,108 +29,100 @@ public class CommentControllerTest {
     @InjectMocks
     private CommentController commentController;
 
-    private MockMvc mockMvc;
+    private Comment sampleComment;
 
     @BeforeEach
-    public void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(commentController).build();
+    void setUp() {
+        User sampleUser = new User();
+        sampleUser.setId(1111L);
+        sampleUser.setUsername("TestUser");
+
+        Video sampleVideo = new Video();
+        sampleVideo.setId(2222L);
+        sampleVideo.setTitle("Test Video");
+
+        sampleComment = new Comment();
+        sampleComment.setId(1L);
+        sampleComment.setAuthor(sampleUser);
+        sampleComment.setContent("This is a test comment.");
+        sampleComment.setVideo(sampleVideo);
     }
 
     @Test
-    public void testAddComment() throws Exception {
-        // Arrange
+    public void testGetCommentById_Found() {
+        when(commentService.findById(1L)).thenReturn(Optional.of(sampleComment));
+
+        ResponseEntity<?> response = commentController.getCommentById(1L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK); // Use HttpStatus.OK for comparison
+        assertThat(response.getBody()).isInstanceOf(CommentDTO.class);
+
+        CommentDTO commentDTO = (CommentDTO) response.getBody();
+        assertThat(commentDTO.getAuthor()).isEqualTo("TestUser");
+        assertThat(commentDTO.getContent()).isEqualTo("This is a test comment.");
+        assertThat(commentDTO.getVideoId()).isEqualTo(2222L); // Check video ID if included in DTO
+    }
+
+
+    @Test
+    public void testGetCommentById_NotFound() {
+        when(commentService.findById(1L)).thenReturn(Optional.empty());
+
+        ResponseEntity<?> response = commentController.getCommentById(1L);
+
+        assertThat(response.getStatusCodeValue()).isEqualTo(404);
+        assertThat(response.getBody()).isInstanceOf(Map.class);
+
+        @SuppressWarnings("unchecked")
+        Map<String, String> errorResponse = (Map<String, String>) response.getBody();
+
+        assertThat(errorResponse).containsEntry("error", "Comment not found");
+    }
+
+
+    @Test
+    public void testAddComment() {
         CommentDTO commentDTO = new CommentDTO();
-        commentDTO.setContent("This is a comment");
-        commentDTO.setVideoId(1L);
-        commentDTO.setAuthor("Proximity");
-        commentDTO.setUserId(1L);
-        commentDTO.setTimestamp(LocalDateTime.parse("2024-11-01T10:00:00"));
-        commentDTO.setLikes(0);
-        commentDTO.setDislikes(0);
+        commentDTO.setAuthor("NewUser");
+        commentDTO.setContent("New comment content");
 
-        Comment comment = new Comment();
-        comment.setContent("This is a comment");
-        comment.setVideo(new Video());
-        comment.setAuthor(new User());
-        commentDTO.setTimestamp(LocalDateTime.parse("2024-11-01T10:00:00"));
+        when(commentService.createComment(commentDTO)).thenReturn(sampleComment);
 
-        when(commentService.createComment(commentDTO)).thenReturn(comment);
+        ResponseEntity<Comment> response = commentController.addComment(commentDTO);
 
-        // Act & Assert
-        mockMvc.perform(post("/api/comments/add")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{ \"content\": \"This is a comment\", \"videoId\": 1, \"author\": \"Proximity\", \"userId\": 1, \"timestamp\": \"2024-11-01T10:00:00\", \"likes\": 0, \"dislikes\": 0 }"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("This is a comment"))
-                .andExpect(jsonPath("$.author").value("Proximity"));
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(sampleComment);
     }
 
     @Test
-    public void testDeleteComment() throws Exception {
-        // Arrange
-        Long commentId = 1L;
-        Long userId = 1L;
+    public void testDeleteComment() {
+        doNothing().when(commentService).deleteComment(1L, 2L);
 
-        doNothing().when(commentService).deleteComment(commentId, userId);
+        ResponseEntity<Void> response = commentController.deleteComment(1L, 2L);
 
-        // Act & Assert
-        mockMvc.perform(delete("/api/comments/delete/{commentId}", commentId)
-                        .param("userId", String.valueOf(userId)))
-                .andExpect(status().isNoContent());
-
-        verify(commentService, times(1)).deleteComment(commentId, userId);
+        assertThat(response.getStatusCodeValue()).isEqualTo(204);
+        verify(commentService, times(1)).deleteComment(1L, 2L);
     }
 
     @Test
-    public void testUpdateComment() throws Exception {
-        // Arrange
-        Long commentId = 1L;
-        Long userId = 1L;
-        String content = "Updated comment content";
+    public void testUpdateComment() {
+        when(commentService.updateComment(1L, 2L, "Updated content")).thenReturn(sampleComment);
 
-        Comment updatedComment = new Comment();
-        updatedComment.setContent(content);
+        ResponseEntity<Comment> response = commentController.updateComment(1L, 2L, "Updated content");
 
-        when(commentService.updateComment(commentId, userId, content)).thenReturn(updatedComment);
-
-        // Act & Assert
-        mockMvc.perform(put("/api/comments/update/{commentId}", commentId)
-                        .param("userId", String.valueOf(userId))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("\"Updated comment content\""))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").value("Updated comment content"));
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo(sampleComment);
     }
 
     @Test
-    public void testLikeComment() throws Exception {
-        // Arrange
-        Long commentId = 1L;
-        Long userId = 1L;
+    public void testReactToComment() {
+        when(commentService.toggleReaction(1L, 2L, true)).thenReturn("Reaction added");
+        doNothing().when(commentService).updateLikeDislikeCounts(1L);
 
-        doNothing().when(commentService).likeComment(commentId, userId);
+        ResponseEntity<String> response = commentController.reactToComment(1L, 2L, true);
 
-        // Act & Assert
-        mockMvc.perform(post("/api/comments/{commentId}/like", commentId)
-                        .param("userId", String.valueOf(userId)))
-                .andExpect(status().isOk());
-
-        verify(commentService, times(1)).likeComment(commentId, userId);
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getBody()).isEqualTo("Reaction added");
+        verify(commentService, times(1)).updateLikeDislikeCounts(1L);
     }
-
-    @Test
-    public void testDislikeComment() throws Exception {
-        // Arrange
-        Long commentId = 1L;
-        Long userId = 1L;
-
-        doNothing().when(commentService).dislikeComment(commentId, userId);
-
-        // Act & Assert
-        mockMvc.perform(post("/api/comments/{commentId}/dislike", commentId)
-                        .param("userId", String.valueOf(userId)))
-                .andExpect(status().isOk());
-
-        verify(commentService, times(1)).dislikeComment(commentId, userId);
-    }
-}*/
+}

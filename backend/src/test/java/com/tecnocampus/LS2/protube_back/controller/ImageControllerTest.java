@@ -19,8 +19,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import org.springframework.http.HttpHeaders;
 
 @ExtendWith(MockitoExtension.class)
-@PropertySource("classpath:application.properties")  // Ensure properties are loaded
-@TestPropertySource(properties = "pro_tube.store.dir=/home/samur18/protube/store")  // Use the actual property or system variable
+@PropertySource("classpath:application.properties")
+@TestPropertySource(properties = "pro_tube.store.dir=/home/samur18/protube/store")
 public class ImageControllerTest {
 
     @InjectMocks
@@ -29,23 +29,21 @@ public class ImageControllerTest {
     private MockMvc mockMvc;
 
     @Value("${pro_tube.store.dir}")
-    private String storeDir;  // Inject the actual property value
+    private String storeDir;
 
     @BeforeEach
     public void setup() {
-        // Pass the actual store directory to the controller constructor
+
         imageController = new ImageController(storeDir);
 
-        // Initialize MockMvc
         mockMvc = MockMvcBuilders.standaloneSetup(imageController).build();
     }
 
     @Test
     public void testServeFile() throws Exception {
-        // Use the actual file path from the store directory
+
         Path file = Paths.get(storeDir).resolve("0.webp");
 
-        // Perform the request and verify the result
         mockMvc.perform(get("/api/images/0.webp"))
                 .andExpect(status().isOk())
                 .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"0.webp\""));

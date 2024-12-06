@@ -80,6 +80,8 @@ public class VideoController {
     public ResponseEntity<VideoDetailsDTO> getVideoDetails(@PathVariable Long id) {
         VideoDetailsDTO videoDetails = videoService.getVideoDetailsById(id);
         if (videoDetails != null) {
+            System.out.println("Categories " + videoDetails.getCategories());
+            System.out.println("Tags " + videoDetails.getTags());
             return ResponseEntity.ok(videoDetails);
         } else {
             return ResponseEntity.notFound().build();

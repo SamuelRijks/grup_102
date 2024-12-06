@@ -78,7 +78,10 @@ const VideoPage: React.FC<VideoPageProps> = ({ username }) => {
             likes: comment.likes,
             dislikes: comment.dislikes,
           }))
+
         );
+        console.log(data.meta.categories);
+        console.log(data.meta.tags);
       } catch (err) {
         setError(`Error loading video: ${(err as Error).message}`);
       } finally {
@@ -135,77 +138,77 @@ const VideoPage: React.FC<VideoPageProps> = ({ username }) => {
     }
   };
 
- const handleReaction = async (commentId: number, isLike: boolean) => {
+  const handleReaction = async (commentId: number, isLike: boolean) => {
     if (!userId) {
-        alert('You need to log in to react to a comment.');
-        return;
+      alert('You need to log in to react to a comment.');
+      return;
     }
 
     try {
-        // Send reaction request
-        const response = await fetch(
-            `http://localhost:8080/api/comments/${commentId}/react?userId=${userId}&isLike=${isLike}`,
-            { method: 'POST' }
-        );
+      // Send reaction request
+      const response = await fetch(
+        `http://localhost:8080/api/comments/${commentId}/react?userId=${userId}&isLike=${isLike}`,
+        { method: 'POST' }
+      );
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(errorText || 'Failed to react to comment.');
-        }
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to react to comment.');
+      }
 
-        // Determine response type (JSON or plain text)
-        const contentType = response.headers.get('Content-Type');
-        let message;
-        if (contentType && contentType.includes('application/json')) {
-            const jsonResponse = await response.json();
-            message = jsonResponse.message || 'Reaction processed successfully.';
-        } else {
-            message = await response.text();
-        }
+      // Determine response type (JSON or plain text)
+      const contentType = response.headers.get('Content-Type');
+      let message;
+      if (contentType && contentType.includes('application/json')) {
+        const jsonResponse = await response.json();
+        message = jsonResponse.message || 'Reaction processed successfully.';
+      } else {
+        message = await response.text();
+      }
 
-        console.log('Server response:', message);
+      console.log('Server response:', message);
 
-        // Fetch updated comment details
-        const commentResponse = await fetch(
-            `http://localhost:8080/api/comments/${commentId}`
-        );
+      // Fetch updated comment details
+      const commentResponse = await fetch(
+        `http://localhost:8080/api/comments/${commentId}`
+      );
 
-        if (!commentResponse.ok) {
-            const errorText = await commentResponse.text();
-            console.error('Failed to fetch updated comment details:', errorText);
-            throw new Error('Failed to fetch updated comment details.');
-        }
+      if (!commentResponse.ok) {
+        const errorText = await commentResponse.text();
+        console.error('Failed to fetch updated comment details:', errorText);
+        throw new Error('Failed to fetch updated comment details.');
+      }
 
-        const updatedComment = await commentResponse.json();
-        console.log('Updated comment details:', updatedComment);
+      const updatedComment = await commentResponse.json();
+      console.log('Updated comment details:', updatedComment);
 
-        // Update local state with new likes/dislikes
-        setComments((prevComments) =>
-            prevComments.map((comment) =>
-                comment.commentId === commentId
-                    ? {
-                          ...comment,
-                          likes: updatedComment.likes,
-                          dislikes: updatedComment.dislikes,
-                      }
-                    : comment
-            )
-        );
+      // Update local state with new likes/dislikes
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.commentId === commentId
+            ? {
+              ...comment,
+              likes: updatedComment.likes,
+              dislikes: updatedComment.dislikes,
+            }
+            : comment
+        )
+      );
 
-        alert(message); // Optional feedback to the user
+      alert(message); // Optional feedback to the user
     } catch (err) {
-        console.error('Error handling reaction:', err);
-        alert((err as Error).message || 'An unexpected error occurred.');
+      console.error('Error handling reaction:', err);
+      alert((err as Error).message || 'An unexpected error occurred.');
     }
-};
+  };
 
-const handleLike = (commentId: number) => {
+  const handleLike = (commentId: number) => {
     handleReaction(commentId, true); // Like reaction
-};
+  };
 
-const handleDislike = (commentId: number) => {
+  const handleDislike = (commentId: number) => {
     handleReaction(commentId, false); // Dislike reaction
-};
+  };
 
 
   if (loading) {
