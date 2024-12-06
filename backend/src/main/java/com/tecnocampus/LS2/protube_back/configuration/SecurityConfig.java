@@ -49,7 +49,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/comments/**").permitAll()
                         .requestMatchers("/api/categories/**").permitAll()
                         .requestMatchers("/media/**").permitAll() // Add other static resource paths as needed
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
+
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(withDefaults()); // Use default CORS handling based on CorsConfigurationSource
