@@ -1,39 +1,384 @@
-.App {
-    text-align: center;
-  }
-  
-  .App-logo {
-    height: 40vmin;
-    pointer-events: none;
-  }
-  
-  @media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-      animation: App-logo-spin infinite 20s linear;
-    }
-  }
-  
-  .App-header {
-    background-color: #282c34;
-    min-height: 100vh;
+/* General Styling */
+body {
+    margin: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #f9fafc;
+    color: #333;
+}
+
+/* Navbar Styling */
+.navbar {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1e2532;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Responsive Navbar */
+@media (max-width: 768px) {
+    .nav-content {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .logo {
+        flex: 1 1 100%;
+        text-align: center;
+    }
+
+    .search-bar {
+        flex: 1 1 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .user-profile {
+        display: none;
+        /* Oculta l'icona d'usuari a pantalles petites */
+    }
+}
+
+/* Logo Section */
+/* Logo Section */
+.logo {
+    display: flex;
+    align-items: center;
+    /* Alineación vertical */
+    gap: 12px;
+    /* Espacio entre la imagen y el título */
+}
+
+.logo a {
+    display: flex;
+    /* Asegura que el enlace también sea flexbox */
+    align-items: center;
+    /* Alineación vertical dentro del enlace */
+    text-decoration: none;
+    /* Elimina subrayado */
+    color: inherit;
+    /* Usa el color del contenedor padre */
+}
+
+.logo-img {
+    width: 48px;
+    /* Tamaño de la imagen */
+    height: 48px;
+    object-fit: contain;
+}
+
+.logo-title {
+    font-size: 1.5rem;
+    /* Tamaño del título */
+    font-weight: 700;
+    /* Negrita */
+    color: #ffffff;
+    /* Color blanco para el texto */
+    margin: 0;
+    /* Quita márgenes del <h1> */
+    line-height: 1;
+    /* Alineación precisa */
+}
+
+
+
+/* Search Bar */
+search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+    border: 1px solid #61dafb;
+    box-shadow: 0 0 6px rgba(97, 218, 251, 0.5);
+    /* Subtle glowing effect */
+}
+
+.search-button {
+    padding: 8px 16px;
+    background-color: #21a1f1 !important;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-button:hover {
+    background-color: #61dafb !important;
+    transform: scale(1.05);
+    /* Subtle scale effect */
+}
+
+/* User Profile Section */
+.user-profile {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    /* Indicates it's clickable */
+    transition: transform 0.2s ease;
+}
+
+.profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffffff;
+}
+
+.profile-pic:hover {
+    transform: scale(1.1);
+    /* Slight zoom on hover */
+    border-color: #61dafb;
+}
+
+
+/* Error Styling */
+.error {
+    color: #e63946;
+    font-weight: 600;
+    margin: 10px 20px;
+    font-size: 1rem;
+}
+
+/* General Styling */
+body {
+    margin: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #f9fafc;
+    color: #333;
+}
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #1e2532;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    /* Non-sticky */
+    z-index: 1000;
+}
+
+.nav-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+/* Logo Section */
+.logo {
+    display: flex;
+    align-items: center;
+    /* Centrat verticalment */
+    color: #ffffff;
+    font-size: 1.5rem;
+    /* Augmentem el text del logotip */
+    font-weight: 700;
+    /* Fet més destacat */
+    gap: 12px;
+    /* Espai entre el logotip i el text */
+}
+
+.logo-img {
+    width: 80px;
+    /* Mida del logotip */
+    height: 80px;
+    object-fit: contain;
+    /* Mantenim les proporcions */
+    border-radius: 8px;
+    /* Si vols un lleuger efecte arrodonit */
+}
+
+
+/* Search Bar */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s ease;
+}
+
+.search-input:focus {
+    border: 1px solid #61dafb;
+}
+
+.search-button {
+    padding: 8px 16px;
+    background-color: #61dafb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.search-button:hover {
+    background-color: #21a1f1;
+}
+
+/* User Profile Section */
+.user-profile {
+    display: flex;
     align-items: center;
     justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
-  }
-  
-  .App-link {
-    color: #61dafb;
-  }
-  
-  @keyframes App-logo-spin {
+}
+
+.profile-pic {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    /* Rodoneta */
+    overflow: hidden;
+    /* Evita que el glow surti fora */
+    background-color: #1e2532;
+    /* Color de fons per la rodoneta */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    border: 2px solid #61dafb;
+    /* Contorn blau */
+}
+
+/* Glow efecte al hover */
+.profile-pic:hover {
+    box-shadow: 0 0 15px 3px rgba(97, 218, 251, 0.75);
+    /* Glow blau */
+    transform: scale(1.1);
+    /* Augment de mida */
+}
+
+/* Error Styling */
+.error {
+    color: #e63946;
+    font-weight: 600;
+    margin: 10px 20px;
+    font-size: 1rem;
+}
+
+
+.profile-dialog {
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    background-color: #1e2532;
+    border: 1px solid #e5e7eb;
+    /* Light border */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
+    padding: 10px;
+    z-index: 1000;
+    width: 250px;
+    animation: fadeIn 0.2s ease-in-out;
+    font-family: 'Inter', sans-serif;
+    /* Matches ChatGPT's font */
+}
+
+.profile-dialog p {
+    margin: 10px 0;
+    padding: 0;
+    font-weight: 600;
+    /* Bold for the username */
+    color: #ffffff;
+    /* Dark text color */
+    text-align: center;
+    font-size: 1rem;
+}
+
+.profile-dialog a,
+.profile-dialog button {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    margin: 4px 0;
+    border-radius: 6px;
+    /* Light gray background */
+    background-color: #1e2532;
+    /* Same as dialog background */
+    color: #ffffff;
+    /* White text */
+    font-size: 0.875rem;
+    /* Slightly smaller font size */
+    text-align: left;
+    /* Align text to the left */
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+    /* Include padding and border in the element's total width and height */
+}
+
+.profile-dialog a:hover,
+.profile-dialog button:hover {
+    background-color: #2a3345;
+}
+
+.profile-dialog a.logout-button,
+.profile-dialog button.logout-button {
+    margin-top: 8px;
+    /* Subtle red background */
+    color: #b91c1c;
+    /* Red text for logout */
+}
+
+.profile-dialog a.logout-button:hover,
+.profile-dialog button.logout-button:hover {
+    /* Darker red hover effect */
+    color: #991b1b;
+}
+
+@keyframes fadeIn {
     from {
-      transform: rotate(0deg);
+        opacity: 0;
+        transform: translateY(-5px);
     }
+
     to {
-      transform: rotate(360deg);
+        opacity: 1;
+        transform: translateY(0);
     }
-  }
-  
+}

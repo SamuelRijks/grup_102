@@ -3,55 +3,134 @@
 const VITE_API_DOMAIN = import.meta.env.VITE_API_DOMAIN;
 
 if (!VITE_API_DOMAIN) {
-    throw new Error('VITE_API_DOMAIN is not defined');
+  throw new Error('VITE_API_DOMAIN is not defined');
 }
 
 export interface Video {
-    id: number;
-    title: string;
-    user: string;
-    thumbnail: string;
+  id: number;
+  title: string;
+  user: string;
+  thumbnail: string;
+}
+
+interface Category {
+  name: string;
+}
+
+interface Tag {
+  name: string;
+}
+
+interface UserComment {
+  commentId: number;
+  text: string;
+  author: string;
+  timestamp: Date;
+  likes: number;
+  dislikes: number;
+}
+
+interface Meta {
+  description: string;
+  categories: string[];
+  tags: string[];
+  comments: UserComment[];
+}
+
+export interface VideoDetails {
+  id: number;
+  width: number;
+  height: number;
+  duration: number;
+  title: string;
+  user: string;
+  videoUrl: string;
+  meta: Meta;
 }
 
 export async function fetchVideos(): Promise<Video[]> {
-    try {
-        // Step 1: Fetch the list of files (JSON, MP4, WEBP) from the main endpoint
-        const response = await fetch(`${VITE_API_DOMAIN}/api/videos`);
-        if (!response.ok) {
-            throw new Error(`Failed to fetch videos: ${response.statusText}`);
-        }
-        const fileList: string[] = await response.json();
-
-        // Step 2: Filter and create a set of unique video IDs
-        const videoIds = new Set<number>();
-        fileList.forEach(file => {
-            const match = file.match(/^(\d+)\.json$/); // Match JSON files to extract video IDs
-            if (match) videoIds.add(parseInt(match[1]));
-        });
-
-        // Step 3: For each video ID, fetch its JSON metadata and construct the video object
-        const videos: Video[] = await Promise.all(
-            Array.from(videoIds).map(async (id) => {
-                const metadataResponse = await fetch(`${VITE_API_DOMAIN}/media/${id}.json`);
-                if (!metadataResponse.ok) {
-                    throw new Error(`Failed to fetch video metadata for video ID ${id}`);
-                }
-                const metadata = await metadataResponse.json();
-
-                return {
-                    id: metadata.id,
-                    title: metadata.title,
-                    user: metadata.user,
-                    thumbnail: `${VITE_API_DOMAIN}/media/${id}.webp`, // URL for the thumbnail
-                };
-            })
-        );
-
-        // Step 4: Sort the videos by ID and return
-        return videos.sort((a, b) => a.id - b.id);
-
-    } catch (error) {
-        console.error('Error fetching videos:', error);
-        throw error;
+  try {
+    const response = await fetch(`${VITE_API_DOMAIN}/api/videos/summaries`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch video summaries: ${response.statusText}`);
     }
+    const videoSummaries: VideoSummaryDTO[] = await response.json();
+
+    return videoSummaries.map(video => ({
+      id: video.id,
+      title: video.title,
+      user: video.uploaderUsername,
+      thumbnail: `${VITE_API_DOMAIN}/api/images/${video.id}.webp`,
+    })).sort((a, b) => a.id - b.id);
+  } catch (error) {
+    console.error('Error fetching video summaries:', error);
+    throw error;
+  }
+}
+
+export async function fetchVideoDetails(id: number): Promise<VideoDetails> {
+  try {
+    const response = await fetch(`${VITE_API_DOMAIN}/api/videos/${id}/details`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch video details: ${response.statusText}`);
+    }
+    const videoDetails: VideoDetailsDTO = await response.json();
+
+    return {
+      id: videoDetails.id,
+      width: videoDetails.width,
+      height: videoDetails.height,
+      duration: videoDetails.duration,
+      title: videoDetails.title,
+      user: videoDetails.uploaderUsername,
+      videoUrl: `${VITE_API_DOMAIN}/api/videos/${id}.mp4`,
+      meta: {
+        description: videoDetails.description || '',
+        categories: videoDetails.categories ? videoDetails.categories.map((category: Category) => category.name) : [],
+        tags: videoDetails.tags ? videoDetails.tags.map((tag: Tag) => tag.name) : [],
+        comments: videoDetails.comments ? videoDetails.comments.map((comment: CommentDTO) => ({
+          commentId: comment.commentId,
+          text: comment.content,
+          author: comment.author,
+          timestamp: new Date(Date.UTC(...(comment.timestamp as [number, number, number, number, number, number]))), // Convertir array a Date
+          likes: comment.likes,
+          dislikes: comment.dislikes,
+        })) : [],
+      },
+    };
+  } catch (error) {
+    console.error(`Error fetching video details for video ID ${id}:`, error);
+    throw error;
+  }
+}
+
+interface VideoSummaryDTO {
+  id: number;
+  title: string;
+  uploaderUsername: string;
+  thumbnailUrl: string;
+}
+
+interface VideoDetailsDTO {
+  id: number;
+  width: number;
+  height: number;
+  duration: number;
+  title: string;
+  uploaderUsername: string;
+  description: string;
+  categories: Category[];
+  tags: Tag[];
+  comments: CommentDTO[];
+  videoUrl: string;
+}
+
+interface CommentDTO {
+  commentId: number;
+  content: string;
+  author: string;
+  videoId: number;
+  timestamp: number[];
+  likes: number;
+  dislikes: number;
 }

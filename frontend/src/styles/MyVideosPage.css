@@ -1,0 +1,202 @@
+    /* General Styling */
+    body, .my-videos-page {
+        font-family: 'Inter', Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    .my-videos-page {
+        padding: 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .my-videos-page h2 {
+        font-size: 2rem;
+        color: #2a2f45;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Form Styling */
+    .upload-video-form {
+        margin-bottom: 40px;
+        padding: 20px;
+        border: 1px solid #e6e8eb;
+        border-radius: 8px;
+        background-color: #f9fafc;
+    }
+
+    .upload-video-form h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .upload-video-form input[type="text"],
+    .tags-input input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        margin-bottom: 10px;
+    }
+
+    .upload-video-form input[type="file"] {
+        display: none; /* Hide file input */
+    }
+
+    .upload-video-form label,
+    .button-primary {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 8px;
+        background-color: #21a1f1 !important;
+        color: #ffffff;
+        font-size: 0.9rem;
+        text-align: center;
+        cursor: pointer;
+        border: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .upload-video-form label:hover,
+    .button-primary:hover {
+        background-color: #61dafb !important;
+        transform: scale(1.05);
+    }
+
+    /* Categories Section */
+    .categories-section {
+        margin-bottom: 20px;
+    }
+
+    .categories-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .categories-section .categories-list label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        color: #ffffff; /* White text */
+    }
+
+    .categories-list input[type="checkbox"] {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #ffffff;
+        border-radius: 4px;
+        background-color: transparent;
+        cursor: pointer;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        position: relative;
+        display: inline-block;
+    }
+
+    .categories-list input[type="checkbox"]:checked {
+        background-color: 	#f121a1; /* Fill color */
+        border-color:  #f563bd; /* Border color */
+    }
+
+    .categories-list input[type="checkbox"]:checked::after {
+        content: '';
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        width: 6px;
+        height: 10px;
+        border: solid #ffffff;
+        border-width: 0 2px 2px 0;
+        transform: translate(-50%, -50%) rotate(45deg); 
+    }
+
+    .categories-list input[type="checkbox"]:hover {
+        background-color: #21a1f1;
+        border-color: #61dafb;
+    }
+
+    /* Tags Section */
+    .tags-section {
+        margin-bottom: 20px;
+    }
+
+    .tags-input {
+        display: flex !important; /* Force horizontal layout */
+        align-items: center !important;
+        gap: 10px !important; /* Ensure spacing between input and button */
+        /* Align items vertically */
+    }
+    
+    .tags-input input,
+    .tags-input .add-tag-button {
+    height: 40px; /* Explicit height */
+    padding: 8px 12px; /* Consistent padding */
+    box-sizing: border-box; /* Include padding and border in dimensions */
+    font-family: inherit; /* Use the same font as the parent */
+    font-size: 1rem; /* Match font sizes */
+    }
+    
+    .tags-input .add-tag-button:hover {
+        background-color: #61dafb !important; /* Hover color */
+        transform: scale(1.05) !important; /* Hover effect */
+    }
+    
+
+    /* Video List Styling */
+    .video-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .video-item {
+        width: 220px;
+        background-color: #ffffff;
+        border: 1px solid #e6e8eb;
+        border-radius: 16px;
+        text-align: center;
+        padding: 16px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .video-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .video-item img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+
+    .video-item p {
+        font-size: 1rem;
+        color: #2a2f45;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .video-item button {
+        @extend .button-primary;
+    }
+
+    /* Error Messages */
+    .error {
+        color: #e63946;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 20px;
+    }

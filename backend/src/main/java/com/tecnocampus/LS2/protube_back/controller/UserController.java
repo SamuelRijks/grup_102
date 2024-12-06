@@ -1,44 +1,58 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
-import com.tecnocampus.LS2.protube_back.domain.LoginRequest;
-import com.tecnocampus.LS2.protube_back.domain.RegisterRequest;
+import com.tecnocampus.LS2.protube_back.domain.Comment;
 import com.tecnocampus.LS2.protube_back.domain.User;
-import com.tecnocampus.LS2.protube_back.service.AuthService;
+import com.tecnocampus.LS2.protube_back.domain.Video;
+import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
+import com.tecnocampus.LS2.protube_back.dto.CommentResponseDTO;
+import com.tecnocampus.LS2.protube_back.dto.UserDTO;
+import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
 import com.tecnocampus.LS2.protube_back.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired  
+    @Autowired
     private UserService userService;
 
-    @Autowired
-    private AuthService authService;
-
-    // Endpoint para registrar un nuevo usuario
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest request) {
-        try {
-            userService.registerUser(request);
-            return ResponseEntity.ok("Usuario registrado con éxito");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al registrar el usuario: " + e.getMessage());
-        }
+    @GetMapping("/{username}")
+    public UserDTO getUserByUsername(@PathVariable String username) {
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return new UserDTO(user.getId(), user.getUsername(), user.getEmail());
     }
 
-    // Endpoint para iniciar sesión y obtener el JWT
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            String token = authService.login(request);
-            return ResponseEntity.ok(token);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Login fallido: " + e.getMessage());
-        }
+
+    @GetMapping("/{username}/comments")
+    public List<CommentResponseDTO> getUserComments(@PathVariable String username) {
+        User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<CommentResponseDTO> comments = user.getComments().stream()
+                .map(comment -> new CommentResponseDTO(comment))
+                .collect(Collectors.toList());
+
+        return comments;
+    }
+
+    @GetMapping("/{username}/videos")
+    public List<VideoSummaryDTO> getUserVideos(@PathVariable String username) {
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        List<VideoSummaryDTO> videos = user.getVideos().stream()
+                .map(video -> new VideoSummaryDTO(video.getId(), video.getTitle(), video.getUploader().getUsername(), video.getThumbnailUrl()))
+                .collect(Collectors.toList());
+
+        System.out.println("Videos for user " + username + ": " + videos);
+        return videos;
     }
 }
-

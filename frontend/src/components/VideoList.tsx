@@ -1,28 +1,60 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Video } from '../utils/api';
+import '../styles/VideoList.css';
 
 interface VideoListProps {
-    videos: Video[];
+  videos: Video[];
 }
 
 const VideoList: React.FC<VideoListProps> = ({ videos }) => {
-    return (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
-            {videos.map((video) => (
-                <div key={video.id} style={{ border: '1px solid #ddd', borderRadius: '8px', padding: '8px', textAlign: 'center' }}>
-                    <img
-                        src={video.thumbnail}
-                        alt={video.title}
-                        width="100%"
-                        height="auto"
-                        style={{ borderRadius: '8px', marginBottom: '8px' }}
-                    />
-                    <h3 style={{ fontSize: '1rem', margin: '8px 0' }}>{video.title}</h3>
-                    <p style={{ fontSize: '0.9rem', color: '#555' }}>{video.user}</p>
-                </div>
-            ))}
-        </div>
-    );
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const handleVideoClick = (videoId: number) => {
+    navigate(`/video/${videoId}`);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
+
+  const filteredVideos = videos.filter((video) =>
+    video.title.toLowerCase().includes(searchQuery)
+  );
+
+  return (
+    <div className="app-container">
+      {/* Search Bar */}
+      <div className="search-bar-container">
+        <input
+          type="text"
+          placeholder="Search videos..."
+          className="search-input"
+          value={searchQuery}
+          onChange={handleSearchChange}
+        />
+      </div>
+      {/* Video List */}
+      <div className="video-list">
+        {filteredVideos.length > 0 ? (
+          filteredVideos.map((video) => (
+            <div
+              key={video.id}
+              className="video-item"
+              onClick={() => handleVideoClick(video.id)}
+            >
+              <img src={video.thumbnail} alt={video.title} />
+              <h3>{video.title}</h3>
+              <p>{video.user}</p>
+            </div>
+          ))
+        ) : (
+          <p className="no-results">No videos found.</p>
+        )}
+      </div>
+    </div>
+  );
 };
 
 export default VideoList;

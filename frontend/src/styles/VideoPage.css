@@ -1,0 +1,174 @@
+/* General styles for VideoPage */
+.video-page {
+  padding: 20px;
+  text-align: center;
+  margin: 0 auto;
+  max-width: 1200px;
+  /* Limitar el ancho máximo de la página */
+}
+
+/* Video container */
+.video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  /* Agregar un poco de padding alrededor del video */
+  border: 1px solid #ddd;
+  /* Agregar un borde alrededor del video */
+  border-radius: 8px;
+  /* Bordes redondeados */
+  background-color: #f9f9f9;
+  /* Fondo claro */
+  max-width: 100%;
+  /* Asegurarse de que el contenedor no exceda el ancho de la página */
+}
+
+.video-container video {
+  width: 100%;
+  /* Asegurarse de que el video ocupe el 100% del contenedor */
+  height: auto;
+  /* Mantener la proporción del video */
+  max-width: 100%;
+  /* Asegurarse de que el video no exceda el ancho del contenedor */
+  border-radius: 8px;
+  /* Bordes redondeados para el video */
+}
+
+/* Video information */
+.video-info {
+  text-align: left;
+  margin-top: 20px;
+  padding: 10px;
+  /* Agregar un poco de padding alrededor de la información del video */
+  border: 1px solid #ddd;
+  /* Agregar un borde alrededor de la información del video */
+  border-radius: 8px;
+  /* Bordes redondeados */
+  background-color: #f9f9f9;
+  /* Fondo claro */
+}
+
+.meta-info {
+  margin-top: 20px;
+}
+
+.meta-info p {
+  font-size: 1em;
+  margin-bottom: 10px;
+}
+
+.meta-info ul {
+  list-style-type: none;
+  /* Eliminar los puntos de viñeta */
+  padding-left: 0;
+  /* Eliminar el padding izquierdo */
+}
+
+.meta-info li {
+  font-size: 1em;
+  margin-bottom: 5px;
+}
+
+/* Comments section */
+.comments-section {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+/* Formulario para añadir comentarios */
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.comment-form textarea {
+  width: 100%;
+  height: 80px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: none;
+}
+
+.comment-form button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.comment-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Lista de comentarios */
+.comments-list {
+  list-style-type: none;
+  /* Eliminar los puntos de viñeta */
+  padding: 0;
+  text-align: left;
+  /* Alinear toda la lista a la izquierda */
+}
+
+/* Comentarios individuales */
+.comment-item {
+  margin-bottom: 15px;
+  /* Separar comentarios entre sí */
+  padding: 10px;
+  text-align: left;
+  /* Alinear el texto del comentario a la izquierda */
+  border-bottom: 1px solid #ddd;
+  /* Línea divisoria entre comentarios */
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+  /* Eliminar la línea del último comentario */
+}
+
+.comment-item p {
+  margin: 5px 0;
+}
+
+.comment-item .author {
+  font-weight: bold;
+}
+
+.comment-item .timestamp {
+  font-size: 0.9em;
+  color: #777;
+}
+
+.comment-item .likes-dislikes {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.icon {
+  cursor: pointer;
+  margin: 0 5px;
+  transition: transform 0.2s ease, color 0.2s ease;
+  font-size: 1.2em;
+}
+
+.like-icon:hover {
+  color: #007bff;
+  /* Blue for likes */
+  transform: scale(1.2);
+}
+
+.dislike-icon:hover {
+  color: #dc3545;
+  /* Red for dislikes */
+  transform: scale(1.2);
+}

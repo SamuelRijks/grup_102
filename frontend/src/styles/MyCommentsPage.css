@@ -1,0 +1,45 @@
+/* MyCommentsPage.css */
+
+.my-comments-page {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.my-comments-page h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.my-comments-page ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.my-comments-page li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.my-comments-page li:last-child {
+    border-bottom: none;
+}
+
+.my-comments-page p {
+    margin: 5px 0;
+}
+
+.my-comments-page .error {
+    color: red;
+    font-weight: bold;
+}
+
+.centered-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    /* Adjust height as needed */
+    font-size: 1.5em;
+    text-align: center;
+}

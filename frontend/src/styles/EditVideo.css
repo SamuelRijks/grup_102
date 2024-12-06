@@ -1,0 +1,197 @@
+/* Modal Background */
+.edit-video-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+/* Modal Content */
+.edit-video-content {
+    background-color: #ffffff;
+    width: 90%;
+    max-width: 500px; /* Reduced max width */
+    max-height: 80vh; /* Restrict height to viewport */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Add space between elements */
+}
+
+/* Modal Heading */
+.edit-video-content h2 {
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+/* Error Message */
+.error {
+    color: #e63946;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Labels and Inputs */
+.edit-video-content label {
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* Inputs */
+.edit-video-content input,
+.edit-video-content textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* Limit textarea size */
+.edit-video-content textarea {
+    resize: none;
+    height: 100px; /* Fixed height */
+    overflow-y: auto; /* Enable scrolling if content overflows */
+}
+
+/* Categories Section */
+ .categories-section {
+    margin-bottom: 20px;
+}
+
+.categories-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.categories-section .categories-list label {
+    all: unset; /* Resets all inherited styles */
+    background-color: #21a1f1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #ffffff; /* White text */
+    border-radius: 4px ;
+    padding: 5px 10px;
+}
+
+.categories-list label:hover{
+    transition: background-color 0.3s ease, border-color 0.3s ease; 
+    background-color: 	#61dafb; /* Fill color */
+}
+
+.categories-list input[type="checkbox"] {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ffffff;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;
+    display: inline-block;
+}
+
+.categories-list input[type="checkbox"]:checked {
+    background-color: 	#f121a1; /* Fill color */
+    border-color:  #f563bd; /* Border color */
+}
+
+.categories-list input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    width: 6px;
+    height: 10px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -50%) rotate(45deg); 
+}
+
+.categories-list input[type="checkbox"]:hover {
+    background-color: #21a1f1 ;
+    border-color: #61dafb
+}
+
+/* Tags Section */
+.tags-section h4 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.tags-input {
+    display: flex;
+    gap: 10px;
+}
+
+.tags-input input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.tags-input button {
+    padding: 8px 16px;
+    background-color: #21a1f1;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.tags-input button:hover {
+    background-color: #21a1f1;
+    transform: scale(1.05);
+}
+
+/* Buttons */
+.edit-video-content button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-video-content button:hover {
+    background-color: #61dafb;
+    color: #fff;
+}
+
+.cancel-button {
+    background-color: #e63946;
+    color: #fff;
+    margin-top: 5px;
+}
+
+.cancel-button:hover {
+    background-color: #c53030 !important;
+}
