@@ -2,7 +2,7 @@ package com.tecnocampus.LS2.protube_back.service;
 
 import com.tecnocampus.LS2.protube_back.domain.LoginRequest;
 import com.tecnocampus.LS2.protube_back.domain.User;
-import com.tecnocampus.LS2.protube_back.persistence.UserRepository;
+import com.tecnocampus.LS2.protube_back.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
