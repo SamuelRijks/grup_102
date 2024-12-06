@@ -80,8 +80,6 @@ public class VideoController {
     public ResponseEntity<VideoDetailsDTO> getVideoDetails(@PathVariable Long id) {
         VideoDetailsDTO videoDetails = videoService.getVideoDetailsById(id);
         if (videoDetails != null) {
-            System.out.println("Categories " + videoDetails.getCategories());
-            System.out.println("Tags " + videoDetails.getTags());
             return ResponseEntity.ok(videoDetails);
         } else {
             return ResponseEntity.notFound().build();
@@ -92,22 +90,15 @@ public class VideoController {
     public ResponseEntity<Map<String, String>> uploadVideo(@ModelAttribute VideoUploadDTO videoUploadDTO) {
         System.out.println("Upload endpoint called with title: " + videoUploadDTO.getTitle());
         try {
-            // Validate the file
             MultipartFile file = videoUploadDTO.getFile();
             if (file == null || !file.getOriginalFilename().toLowerCase().endsWith(".mp4")) {
                 System.out.println("File is null");
                 return ResponseEntity.badRequest().body(Map.of("error", "Invalid file. Must be an MP4."));
             }
-            System.out.println("File received: " + file.getOriginalFilename());
             if (!file.getOriginalFilename().toLowerCase().endsWith(".mp4")) {
                 System.out.println("Invalid file type: " + file.getOriginalFilename());
             }
 
-            System.out.println("File received: " + file.getOriginalFilename());
-            System.out.println("User ID: " + videoUploadDTO.getUserId());
-            System.out.println("Tags: " + videoUploadDTO.getTags());
-
-            // Generate video file name and save the file
             Long nextId = videoService.getNextVideoId();
             String fileName = nextId + ".mp4";
             Path filePath = videoLocation.resolve(nextId + ".mp4");
@@ -122,11 +113,8 @@ public class VideoController {
 
             // Generate thumbnail and metadata
             String thumbnailPath = videoLocation.resolve(nextId + ".webp").toString();
-            System.out.println("Thumbnailpath" + thumbnailPath);
-            System.out.println("Generating thumbnail...");
             try {
                 generateThumbnail(filePath.toString(), thumbnailPath, "00:00:05");
-                System.out.println("Thumbnail generated at: " + thumbnailPath);
             } catch (Exception e) {
                 System.out.println("Failed to generate thumbnail: " + e.getMessage());
                 e.printStackTrace();
@@ -138,8 +126,6 @@ public class VideoController {
 
             videoUploadDTO.setThumbnailUrl(normalizeUrl("/api/images", nextId + ".webp"));
 
-            System.out.println("VideoUploadDTO url: " + videoUploadDTO.getUrl());
-            System.out.println("VideoUploadDTO thumbnailUrl: " + videoUploadDTO.getThumbnailUrl());
 
             List<String> tags = videoUploadDTO.getTags();
             if (tags == null || tags.isEmpty()) {
@@ -159,22 +145,13 @@ public class VideoController {
                     .map(name -> name.replace("\"", "")) // Remove quotes if they exist
                     .collect(Collectors.toList());
 
-            System.out.println("Processed categories: " + categories);
-
-            System.out.println("VideoUploadDTO userId: " + videoUploadDTO.getUserId());
-            System.out.println("VideoUploadDTO title: " + videoUploadDTO.getTitle());
             if (videoUploadDTO.getUserId() == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "User ID is missing or null."));
             }
-            System.out.println("Received category names: " + videoUploadDTO.getCategories());
-            // Save video using service
 
             // Extract metadata
             Map<String, Object> metadata;
             try {
-                System.out.println("Extracting video metadata...");
-                System.out.println("File path: " + filePath);
-                System.out.println("File path.toString(): " + filePath.toString());
                 metadata = extractVideoMetadata(filePath.toString());
             } catch (Exception e) {
                 return ResponseEntity.status(500).body(Map.of("error", "Failed to extract video metadata: " + e.getMessage()));
@@ -184,12 +161,7 @@ public class VideoController {
             videoUploadDTO.setHeight((Integer) metadata.get("height"));
             videoUploadDTO.setDuration((Double) metadata.get("duration"));
 
-            System.out.println("Saving video with metadata: " + metadata);
-
-
-            System.out.println("Saving video with title: " + videoUploadDTO.getTitle());
             Video savedVideo = videoService.uploadVideo(videoUploadDTO);
-            System.out.println("Saved video ID: " + savedVideo.getId());
 
 
             // Generate JSON metadata
@@ -209,7 +181,6 @@ public class VideoController {
                     videoUploadDTO.getUrl(),
                     videoUploadDTO.getThumbnailUrl()
             );
-            System.out.println("Metadata JSON saved at: " + jsonPath);
             return ResponseEntity.ok(Map.of(
                     "message", "Video uploaded successfully.",
                     "videoId", String.valueOf(savedVideo.getId())
@@ -227,7 +198,6 @@ public class VideoController {
     }
 
     private void generateThumbnail(String videoPath, String thumbnailPath, String timestamp) throws Exception {
-        System.out.println("Generating thumbnail for video: " + videoPath);
         ProcessBuilder processBuilder = new ProcessBuilder(
                 "ffmpeg",
                 "-i", videoPath,
@@ -236,7 +206,6 @@ public class VideoController {
                 "-vf", "scale=320:-1", // Resize the thumbnail to 320px width while maintaining aspect ratio
                 thumbnailPath
         );
-        System.out.println("Command: " + processBuilder.command());
         Process process = processBuilder.start();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
              BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
@@ -274,10 +243,6 @@ public class VideoController {
         List<String> cleanCategories = categories != null ? categories : Collections.emptyList();
         List<String> cleanTags = tags != null ? tags : Collections.emptyList();
 
-        //trim the first and last character of the array cleanCategories
-        System.out.println("cleanCategories: " + cleanCategories);
-        System.out.println("cleanTags: " + cleanTags);
-
         // Create the "meta" object
         Map<String, Object> meta = new HashMap<>();
         meta.put("description", description);
@@ -293,8 +258,6 @@ public class VideoController {
     }
 
     private Map<String, Object> extractVideoMetadata(String videoPath) throws Exception {
-        System.out.println("Starting video metadata extraction...");
-        System.out.println("Video path: " + videoPath);
 
         Map<String, Object> metadata = new HashMap<>();
 
@@ -309,7 +272,6 @@ public class VideoController {
                     videoPath
             );
 
-            System.out.println("Running ffprobe for dimensions: " + dimensionsProcessBuilder.command());
             Process dimensionsProcess = dimensionsProcessBuilder.start();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dimensionsProcess.getInputStream()));
                  BufferedReader errorReader = new BufferedReader(new InputStreamReader(dimensionsProcess.getErrorStream()))) {
@@ -349,7 +311,6 @@ public class VideoController {
                     videoPath
             );
 
-            System.out.println("Running ffprobe for duration: " + durationProcessBuilder.command());
             Process durationProcess = durationProcessBuilder.start();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(durationProcess.getInputStream()));
                  BufferedReader errorReader = new BufferedReader(new InputStreamReader(durationProcess.getErrorStream()))) {
@@ -377,7 +338,6 @@ public class VideoController {
             throw new RuntimeException("Error extracting duration: " + e.getMessage(), e);
         }
 
-        System.out.println("Extracted metadata: " + metadata);
         return metadata;
     }
 
@@ -385,9 +345,6 @@ public class VideoController {
     @PutMapping("/edit/{id}")
     public ResponseEntity<?> editVideo(@PathVariable Long id, @RequestBody VideoUpdateDTO videoUpdateDTO) {
         // Log incoming request details
-        System.out.println("Received request to edit video.");
-        System.out.println("Video ID: " + id);
-        System.out.println("VideoUpdateDTO: " + videoUpdateDTO);
 
         try {
             // Fetch the video from the service
@@ -406,16 +363,12 @@ public class VideoController {
 
             // Check if the user attempting to edit the video matches the uploader
             if (!video.getUploader().getUsername().equals(videoUpdateDTO.getUsername())) {
-                System.out.println("Forbidden: Username mismatch.");
-                System.out.println("Uploader username: " + video.getUploader().getUsername());
-                System.out.println("Editor username: " + videoUpdateDTO.getUsername());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not allowed to edit this video.");
             }
 
             // Update video details
             video.setTitle(videoUpdateDTO.getTitle());
             if (video.getMeta() != null) {
-                System.out.println("Updating video description...");
                 video.getMeta().setDescription(videoUpdateDTO.getDescription());
             } else {
                 System.out.println("Meta data is null. Creating new meta object...");
@@ -427,8 +380,6 @@ public class VideoController {
             // Save the updated video
             videoService.save(video);
             System.out.println("Video updated successfully.");
-            System.out.println("Updated title: " + video.getTitle());
-            System.out.println("Updated description: " + video.getMeta().getDescription());
 
             return ResponseEntity.ok("Video updated successfully.");
         } catch (Exception e) {
