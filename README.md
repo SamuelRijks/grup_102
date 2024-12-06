@@ -9,12 +9,17 @@ Cerca de vídeos pel navegador: Permet als usuaris cercar vídeos directament de
 Creació de tags personalitzats en la pujada de vídeos: Els usuaris registrats poden crear i assignar tags als vídeos quan els carreguen a la plataforma.
 
 ### Dades d'accés:
+
 Usuari: admin
+
 Contrasenya: grup102
+
 Nom de la base de dades: protube
 
 ### Dependències i tecnologies
+
 S'han afegit les dependencies de FontAwesome per a l'ús d'icones a l'aplicació.
+
 S'ha implementat el sistema JWT per al registre i login dels usuaris.
 
 ### Perfils
