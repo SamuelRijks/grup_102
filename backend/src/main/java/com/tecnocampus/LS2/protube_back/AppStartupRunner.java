@@ -159,11 +159,37 @@ public class AppStartupRunner implements ApplicationRunner {
                                         comment.setVideo(video);
                                         comment.setTimestamp(LocalDateTime.now());
 
-                                        // Guardar comentario si no existe uno idéntico
+                                        // Verificar si el comentario ya existe en la base de datos
                                         if (!commentRepository.existsByContentAndAuthorAndVideo(comment.getContent(), comment.getAuthor(), comment.getVideo())) {
+                                            // Si no existe, guardar el nuevo comentario
                                             commentRepository.save(comment);
                                             comments.add(comment);
-                                            LOG.info("Saved comment: {} by {}", comment.getContent(), comment.getAuthor().getUsername());
+                                            LOG.info("Saved new comment: {} by {}", comment.getContent(), comment.getAuthor().getUsername());
+                                        } else {
+                                            // Si existe, actualizar los likes y dislikes si han cambiado
+                                            Optional<Comment> existingCommentOpt = commentRepository.findByContentAndAuthorAndVideo(comment.getContent(), comment.getAuthor(), comment.getVideo());
+                                            if (existingCommentOpt.isPresent()) {
+                                                Comment existingComment = existingCommentOpt.get();
+                                                boolean updated = false;
+
+                                                // Verificar si los likes han cambiado
+                                                if (existingComment.getLikes() != commentNode.path("likes").asInt()) {
+                                                    existingComment.setLikes(commentNode.path("likes").asInt());
+                                                    updated = true;
+                                                }
+
+                                                // Verificar si los dislikes han cambiado
+                                                if (existingComment.getDislikes() != commentNode.path("dislikes").asInt()) {
+                                                    existingComment.setDislikes(commentNode.path("dislikes").asInt());
+                                                    updated = true;
+                                                }
+
+                                                // Si se detectó un cambio, actualizar el comentario en la base de datos
+                                                if (updated) {
+                                                    commentRepository.save(existingComment);
+                                                    LOG.info("Updated likes/dislikes for comment: {}", existingComment.getContent());
+                                                }
+                                            }
                                         }
                                     } catch (Exception e) {
                                         LOG.error("Failed to process comment for video {}: {}", video.getId(), e.getMessage());
