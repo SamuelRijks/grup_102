@@ -1,6 +1,6 @@
 # Pro tube project
 
-##Característiques del projecte
+## Característiques del projecte
 
 Sistema de like/dislike: Els usuaris poden reaccionar als vídeos amb un "m'agrada" o "no m'agrada".
 
