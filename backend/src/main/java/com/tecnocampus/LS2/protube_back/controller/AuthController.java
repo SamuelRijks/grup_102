@@ -1,6 +1,5 @@
 package com.tecnocampus.LS2.protube_back.controller;
 
-import com.tecnocampus.LS2.protube_back.configuration.JwtService;
 import com.tecnocampus.LS2.protube_back.domain.User;
 import com.tecnocampus.LS2.protube_back.service.UserService;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import java.util.Optional;
 public class AuthController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthController.class);
-    private JwtService jwtService;
 
     @Autowired
     private UserService userService;
@@ -37,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody User user) {
+    public ResponseEntity<String> loginUser(@RequestBody User user) {
         LOG.info("Attempting to log in user with username: {}", user.getUsername());
         try {
             Optional<User> optionalUser = userService.findByUsername(user.getUsername());
@@ -47,14 +45,13 @@ public class AuthController {
                         new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                String token = jwtService.generateToken(user.getUsername());
-                return ResponseEntity.ok(Map.of("token", token));
+                return ResponseEntity.ok("Login successful");
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "User not found"));
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found");
             }
         } catch (Exception ex) {
             LOG.error("Login failed for user {}: {}", user.getUsername(), ex.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body( ex.getMessage());
         }
     }
 }

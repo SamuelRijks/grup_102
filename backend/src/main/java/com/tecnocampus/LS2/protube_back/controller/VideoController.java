@@ -2,9 +2,11 @@ package com.tecnocampus.LS2.protube_back.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tecnocampus.LS2.protube_back.domain.Category;
+import com.tecnocampus.LS2.protube_back.domain.Meta;
 import com.tecnocampus.LS2.protube_back.domain.Video;
 import com.tecnocampus.LS2.protube_back.dto.VideoDetailsDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
+import com.tecnocampus.LS2.protube_back.dto.VideoUpdateDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoUploadDTO;
 import com.tecnocampus.LS2.protube_back.repository.CategoryRepository;
 import com.tecnocampus.LS2.protube_back.service.VideoService;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -129,7 +132,8 @@ public class VideoController {
             }
 
             // Set additional fields in DTO
-            videoUploadDTO.setUrl(normalizeUrl("/videos", fileName));
+            videoUploadDTO.setUrl(fileName);
+
             videoUploadDTO.setThumbnailUrl(normalizeUrl("/api/images", nextId + ".webp"));
 
             System.out.println("VideoUploadDTO url: " + videoUploadDTO.getUrl());
@@ -146,6 +150,14 @@ public class VideoController {
             } else {
                 videoUploadDTO.setCategories(null); // Allow empty categories
             }
+            categories = categories.stream()
+                    .map(name -> name.substring(1, name.length() - 1))
+                    .flatMap(name -> Arrays.stream(name.replaceAll("\\[\\[|\\]\\]", "").split(","))) // Remove outer brackets and split by comma
+                    .map(String::trim) // Remove leading/trailing spaces
+                    .map(name -> name.replace("\"", "")) // Remove quotes if they exist
+                    .collect(Collectors.toList());
+
+            System.out.println("Processed categories: " + categories);
 
             System.out.println("VideoUploadDTO userId: " + videoUploadDTO.getUserId());
             System.out.println("VideoUploadDTO title: " + videoUploadDTO.getTitle());
@@ -261,12 +273,6 @@ public class VideoController {
         List<String> cleanTags = tags != null ? tags : Collections.emptyList();
 
         //trim the first and last character of the array cleanCategories
-        if (!cleanCategories.isEmpty()) {
-            cleanCategories = cleanCategories.stream()
-                    .map(name -> name.substring(1, name.length() - 1))
-                    .map(String::trim) // Remove leading/trailing spaces
-                    .collect(Collectors.toList());
-        }
         System.out.println("cleanCategories: " + cleanCategories);
         System.out.println("cleanTags: " + cleanTags);
 
@@ -374,17 +380,63 @@ public class VideoController {
     }
 
 
-    @PutMapping("/edit/{videoId}")
-    public ResponseEntity<Video> editVideo(@PathVariable Long videoId, @RequestBody VideoUploadDTO videoUploadDTO, @RequestParam Long userId) {
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<?> editVideo(@PathVariable Long id, @RequestBody VideoUpdateDTO videoUpdateDTO) {
+        // Log incoming request details
+        System.out.println("Received request to edit video.");
+        System.out.println("Video ID: " + id);
+        System.out.println("VideoUpdateDTO: " + videoUpdateDTO);
+
         try {
-            Video updatedVideo = videoService.editVideo(videoId, videoUploadDTO, userId);
-            return ResponseEntity.ok(updatedVideo);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(null);
+            // Fetch the video from the service
+            Optional<Video> videoOpt = videoService.findById(id);
+
+            if (videoOpt.isEmpty()) {
+                System.out.println("No video found with ID: " + id);
+                return ResponseEntity.notFound().build();
+            }
+
+            Video video = videoOpt.get();
+            System.out.println("Fetched video details: ");
+            System.out.println("Title: " + video.getTitle());
+            System.out.println("Uploader: " + video.getUploader().getUsername());
+            System.out.println("UpdateDTO: " + videoUpdateDTO.getUsername());
+
+            // Check if the user attempting to edit the video matches the uploader
+            if (!video.getUploader().getUsername().equals(videoUpdateDTO.getUsername())) {
+                System.out.println("Forbidden: Username mismatch.");
+                System.out.println("Uploader username: " + video.getUploader().getUsername());
+                System.out.println("Editor username: " + videoUpdateDTO.getUsername());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("You are not allowed to edit this video.");
+            }
+
+            // Update video details
+            video.setTitle(videoUpdateDTO.getTitle());
+            if (video.getMeta() != null) {
+                System.out.println("Updating video description...");
+                video.getMeta().setDescription(videoUpdateDTO.getDescription());
+            } else {
+                System.out.println("Meta data is null. Creating new meta object...");
+                Meta meta = new Meta();
+                meta.setDescription(videoUpdateDTO.getDescription());
+                video.setMeta(meta);
+            }
+
+            // Save the updated video
+            videoService.save(video);
+            System.out.println("Video updated successfully.");
+            System.out.println("Updated title: " + video.getTitle());
+            System.out.println("Updated description: " + video.getMeta().getDescription());
+
+            return ResponseEntity.ok("Video updated successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            // Log the exception for debugging
+            System.err.println("Error occurred while editing video:");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while editing the video.");
         }
     }
+
 
     @PostMapping("/{videoId}/like")
     public ResponseEntity<Void> likeVideo(@PathVariable Long videoId, @RequestParam Long userId) {

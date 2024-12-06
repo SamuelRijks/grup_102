@@ -1,20 +1,14 @@
 package com.tecnocampus.LS2.protube_back.service;
 
 import com.tecnocampus.LS2.protube_back.domain.*;
-import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
-import com.tecnocampus.LS2.protube_back.dto.VideoDetailsDTO;
-import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
-import com.tecnocampus.LS2.protube_back.dto.VideoUploadDTO;
+import com.tecnocampus.LS2.protube_back.dto.*;
 import com.tecnocampus.LS2.protube_back.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,7 +77,7 @@ public class VideoService {
         }
 
         // Print processed categoryNames
-        System.out.println("Processed categoryNames: " + categoryNames);
+        System.out.println("Processed categoryNames IN VIDEOSERVICE: " + categoryNames);
 
         List<Category> categories = null;
         if (!categoryNames.isEmpty()) {
@@ -122,6 +116,10 @@ public class VideoService {
         video.setMeta(meta);
 
         return videoRepository.save(video);
+    }
+
+    public Optional<Video> findById(Long id) {
+        return videoRepository.findById(id);
     }
 
 
@@ -209,5 +207,9 @@ public class VideoService {
 
         // Guardar els canvis
         return videoRepository.save(video);
+    }
+
+    public Video save(Video video) {
+       return videoRepository.save(video);
     }
 }

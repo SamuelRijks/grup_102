@@ -33,6 +33,7 @@ public class VideoDetailsDTO {
 
         Meta meta = video.getMeta();
         if (meta != null) {
+            System.out.println("META NO EMPTY ");
             this.description = meta.getDescription();
             this.categories = meta.getCategories().stream()
                     .map(category -> {
@@ -52,6 +53,7 @@ public class VideoDetailsDTO {
                     return commentDTO;
                 }).collect(Collectors.toList());
         } else {
+            System.out.println("META  EMPTY ");
             this.description = "No description available.";
             this.categories = List.of();
             this.tags = List.of();
