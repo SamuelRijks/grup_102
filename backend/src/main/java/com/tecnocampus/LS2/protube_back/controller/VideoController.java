@@ -24,10 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/videos")
@@ -131,8 +129,8 @@ public class VideoController {
             }
 
             // Set additional fields in DTO
-            videoUploadDTO.setUrl("/videos/" + fileName);
-            videoUploadDTO.setThumbnailUrl("/api/images/" + nextId + ".webp");
+            videoUploadDTO.setUrl(normalizeUrl("/videos", fileName));
+            videoUploadDTO.setThumbnailUrl(normalizeUrl("/api/images", nextId + ".webp"));
 
             System.out.println("VideoUploadDTO url: " + videoUploadDTO.getUrl());
             System.out.println("VideoUploadDTO thumbnailUrl: " + videoUploadDTO.getThumbnailUrl());
@@ -208,6 +206,12 @@ public class VideoController {
         }
     }
 
+    private String normalizeUrl(String baseUrl, String path) {
+        if (baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+        if (path.startsWith("/")) path = path.substring(1);
+        return baseUrl + "/" + path;
+    }
+
     private void generateThumbnail(String videoPath, String thumbnailPath, String timestamp) throws Exception {
         System.out.println("Generating thumbnail for video: " + videoPath);
         ProcessBuilder processBuilder = new ProcessBuilder(
@@ -251,6 +255,20 @@ public class VideoController {
         metadata.put("width", width);
         metadata.put("height", height);
         metadata.put("duration", duration);
+
+        // Corrige el formato de categorías y etiquetas
+        List<String> cleanCategories = categories != null ? categories : Collections.emptyList();
+        List<String> cleanTags = tags != null ? tags : Collections.emptyList();
+
+        //trim the first and last character of the array cleanCategories
+        if (!cleanCategories.isEmpty()) {
+            cleanCategories = cleanCategories.stream()
+                    .map(name -> name.substring(1, name.length() - 1))
+                    .map(String::trim) // Remove leading/trailing spaces
+                    .collect(Collectors.toList());
+        }
+        System.out.println("cleanCategories: " + cleanCategories);
+        System.out.println("cleanTags: " + cleanTags);
 
         // Create the "meta" object
         Map<String, Object> meta = new HashMap<>();
@@ -356,10 +374,16 @@ public class VideoController {
     }
 
 
-    @PutMapping("/update/{videoId}") //No s'utilitzen els atributs url de VideoUploadDTO
-    public ResponseEntity<Video> updateVideo(@PathVariable Long videoId, @RequestBody VideoUploadDTO videoUploadDTO) {
-        Video updatedVideo = videoService.updateVideo(videoId, videoUploadDTO);
-        return ResponseEntity.ok(updatedVideo);
+    @PutMapping("/edit/{videoId}")
+    public ResponseEntity<Video> editVideo(@PathVariable Long videoId, @RequestBody VideoUploadDTO videoUploadDTO, @RequestParam Long userId) {
+        try {
+            Video updatedVideo = videoService.editVideo(videoId, videoUploadDTO, userId);
+            return ResponseEntity.ok(updatedVideo);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
     @PostMapping("/{videoId}/like")

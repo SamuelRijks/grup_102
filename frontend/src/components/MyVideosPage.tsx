@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/MyVideosPage.css';
+import EditVideo from './EditVideo';
 
 interface Video {
     id: number;
@@ -29,10 +30,87 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
     const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
     const [tags, setTags] = useState<string>('');
     const [newTag, setNewTag] = useState<string>('');
+    const [editingVideoId, setEditingVideoId] = useState<number | null>(null);
 
-    // Fetch categories
+    const fetchUserVideos = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            console.log('Token being sent:', token); // Debug: Log the token being sent
+    
+            if (!token) {
+                throw new Error('Authentication token is missing');
+            }
+    
+            const response = await fetch(`http://localhost:8080/api/users/${userId}/videos`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (!response.ok) {
+                if (response.status === 403) {
+                    throw new Error('Access denied');
+                } else if (response.status === 404) {
+                    throw new Error('User not found');
+                } else {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+            }
+    
+            const data = await response.json();
+            setVideos(data);
+        } catch (err) {
+            console.error('Error fetching user videos:', err);
+            setError(err.message);
+        }
+    };
+    
+    
+
+    const [editingVideoId, setEditingVideoId] = useState<number | null>(null);
+
+    const fetchUserVideos = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            console.log('Token being sent:', token); // Debug: Log the token being sent
+    
+            if (!token) {
+                throw new Error('Authentication token is missing');
+            }
+    
+            const response = await fetch(`http://localhost:8080/api/users/${userId}/videos`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (!response.ok) {
+                if (response.status === 403) {
+                    throw new Error('Access denied');
+                } else if (response.status === 404) {
+                    throw new Error('User not found');
+                } else {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+            }
+    
+            const data = await response.json();
+            setVideos(data);
+        } catch (err) {
+            console.error('Error fetching user videos:', err);
+            setError(err.message);
+        }
+    };
+    
+    
+
     useEffect(() => {
-        async function fetchCategories() {
+        const fetchCategories = async () => {
+        const fetchCategories = async () => {
             try {
                 const response = await fetch('http://localhost:8080/api/categories');
                 if (!response.ok) {
@@ -43,14 +121,17 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
             } catch (err) {
                 setError((err as Error).message);
             }
-        }
+        };
+
+        };
+
         fetchCategories();
     }, []);
 
-    // Fetch userId using username
     useEffect(() => {
         if (username) {
-            async function fetchUserId() {
+            const fetchUserId = async () => {
+            const fetchUserId = async () => {
                 try {
                     const response = await fetch(`http://localhost:8080/api/users/${username}`);
                     if (!response.ok) {
@@ -61,10 +142,25 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
                 } catch (err) {
                     setError((err as Error).message);
                 }
-            }
+            };
+
+            };
+
             fetchUserId();
         }
     }, [username]);
+
+    useEffect(() => {
+        if (userId) {
+            fetchUserVideos();
+        }
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId) {
+            fetchUserVideos();
+        }
+    }, [userId]);
 
     const handleCategorySelect = (id: number) => {
         setSelectedCategories((prev) =>
@@ -77,6 +173,14 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
             setTags((prev) => (prev ? `${prev},${newTag}` : newTag));
             setNewTag('');
         }
+    };
+
+    const handleVideoUpdated = () => {
+        fetchUserVideos(); // Reusing fetchUserVideos for video updates
+    };
+
+    const handleVideoUpdated = () => {
+        fetchUserVideos(); // Reusing fetchUserVideos for video updates
     };
 
     const uploadVideo = async () => {
@@ -101,11 +205,6 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
             formData.append('categories', JSON.stringify(categoryNames));
             formData.append('tags', tags);
 
-            console.log('FormData being sent:');
-            for (const [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
-
             const response = await fetch('http://localhost:8080/api/videos/upload', {
                 method: 'POST',
                 body: formData,
@@ -116,7 +215,34 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
             }
 
             const newVideo = await response.json();
-            setVideos((prevVideos) => [...prevVideos, newVideo]);
+
+            // Add new video to the state
+            if (newVideo.videoId) {
+                setVideos((prevVideos) => [
+                    ...prevVideos,
+                    {
+                        id: newVideo.videoId,
+                        title: title,
+                        thumbnail: `/api/images/${newVideo.videoId}.webp`,
+                    },
+                ]);
+            }
+
+            // Reset form fields
+
+            // Add new video to the state
+            if (newVideo.videoId) {
+                setVideos((prevVideos) => [
+                    ...prevVideos,
+                    {
+                        id: newVideo.videoId,
+                        title: title,
+                        thumbnail: `/api/images/${newVideo.videoId}.webp`,
+                    },
+                ]);
+            }
+
+            // Reset form fields
             setTitle('');
             setFile(null);
             setSelectedCategories([]);
@@ -205,19 +331,53 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
                 </button>
                 {error && <p className="error">{error}</p>}
             </div>
-            <ul>
-                {videos.map((video) => (
-                    <li key={video.id}> {/* Add the unique key prop */}
-                        <Link to={`/video/${video.id}`}>
-                            <img
-                                src={`http://localhost:8080/api/images/${video.id}.webp`}
-                                alt={video.title}
-                            />
-                            <p>{video.title}</p>
-                        </Link>
-                    </li>
-                ))}
-            </ul>
+            {loading ? (
+                <p>Loading videos...</p>
+            ) : (
+                <ul>
+                    {videos.map((video) => (
+                        <li key={video.id}>
+                            <Link to={`/video/${video.id}`}>
+                                <img
+                                    src={`http://localhost:8080/api/images/${video.id}.webp`}
+                                    alt={video.title}
+                                />
+                                <p>{video.title}</p>
+                            </Link>
+                        </li>
+                    ))}
+            {loading ? (
+                <p>Loading videos...</p>
+            ) : (
+                <ul>
+                    {videos.map((video) => (
+                        <li key={video.id}>
+                            <Link to={`/video/${video.id}`}>
+                                <img
+                                    src={`http://localhost:8080/api/images/${video.id}.webp`}
+                                    alt={video.title}
+                                />
+                                <p>{video.title}</p>
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            )}
+            {editingVideoId && (
+                <EditVideo
+                    videoId={editingVideoId}
+                    onClose={() => setEditingVideoId(null)}
+                    onVideoUpdated={handleVideoUpdated}
+                />
+            )}
+            )}
+            {editingVideoId && (
+                <EditVideo
+                    videoId={editingVideoId}
+                    onClose={() => setEditingVideoId(null)}
+                    onVideoUpdated={handleVideoUpdated}
+                />
+            )}
         </div>
     );
 };

@@ -9,8 +9,10 @@ import com.tecnocampus.LS2.protube_back.dto.UserDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
 import com.tecnocampus.LS2.protube_back.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,7 +46,7 @@ public class UserController {
     @GetMapping("/{username}/videos")
     public List<VideoSummaryDTO> getUserVideos(@PathVariable String username) {
         User user = userService.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
         List<VideoSummaryDTO> videos = user.getVideos().stream()
                 .map(video -> new VideoSummaryDTO(video.getId(), video.getTitle(), video.getUploader().getUsername(), video.getThumbnailUrl()))

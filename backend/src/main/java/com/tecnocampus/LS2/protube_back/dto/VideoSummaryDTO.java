@@ -16,7 +16,7 @@ public class VideoSummaryDTO {
     public void setThumbnailUrl(String filename) {
         this.thumbnailUrl = "/api/images/" + filename;
     }
-    public VideoSummaryDTO(Long id, String title, String uploaderUsername, String thumbnailUrl) {
+    public VideoSummaryDTO(Long id, String title,   String uploaderUsername, String thumbnailUrl) {
         this.id = id;
         this.title = title;
         this.uploaderUsername=uploaderUsername;

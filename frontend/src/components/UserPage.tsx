@@ -75,7 +75,20 @@ const UserPage: React.FC<UserPageProps> = ({ setUsername }) => {
                 throw new Error('Failed to login');
             }
 
+            const contentType = response.headers.get('Content-Type');
+            let data;
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json(); // Parse JSON if Content-Type is application/json
+            } else {
+                data = { token: await response.text() }; // Fallback for plain text response
+            } // Assuming response contains { token: string }
+            const token = data.token;
+
+            localStorage.setItem('authToken', token);
+
+
             // Handle successful login
+            
             alert('Login successful!');
             setUsername(username); // Establecer el nombre de usuario en el estado global
             navigate('/'); // Redirigir a la página de VideoList

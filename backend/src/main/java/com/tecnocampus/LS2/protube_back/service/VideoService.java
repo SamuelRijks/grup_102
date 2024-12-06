@@ -186,4 +186,28 @@ public class VideoService {
         Long maxId = videoRepository.findMaxId(); // Assuming findMaxId() is implemented
         return (maxId != null ? maxId : 0L) + 1;
     }
+
+    public Video editVideo(Long videoId, VideoUploadDTO videoUploadDTO, Long userId) {
+        // Validar si l'usuari existeix
+        User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Buscar el vídeo
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new IllegalArgumentException("Video not found"));
+
+        // Comprovar que el vídeo pertany a l'usuari
+        if (!video.getUploader().getId().equals(userId)) {
+            throw new IllegalArgumentException("User does not have permission to edit this video");
+        }
+
+        // Actualitzar només les dades que es poden editar
+        if (videoUploadDTO.getTitle() != null) {
+            video.setTitle(videoUploadDTO.getTitle());
+        }
+        if (videoUploadDTO.getDescription() != null) {
+            video.getMeta().setDescription(videoUploadDTO.getDescription());
+        }
+
+        // Guardar els canvis
+        return videoRepository.save(video);
+    }
 }

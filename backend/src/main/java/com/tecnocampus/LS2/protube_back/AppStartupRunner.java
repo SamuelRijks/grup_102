@@ -56,11 +56,11 @@ public class AppStartupRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (loadInitialData) {
-//           commentRepository.deleteAll(); // Primero elimina los comentarios
-//            userRepository.deleteAll();    // Luego elimina los usuarios
-//           videoRepository.deleteAll();
-//           categoryRepository.deleteAll();
-//            tagRepository.deleteAll();
+            commentRepository.deleteAll(); // Primero elimina los comentarios
+            userRepository.deleteAll();    // Luego elimina los usuarios
+            videoRepository.deleteAll();
+            categoryRepository.deleteAll();
+            tagRepository.deleteAll();
             loadVideosFromDirectory();
         }
     }
