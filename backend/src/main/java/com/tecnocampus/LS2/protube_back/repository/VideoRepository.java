@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Long> {
-    Optional<Object> findByTitle(String videoTitle);
+    Optional<Video> findByTitle(String videoTitle);
 
     @Query("SELECT MAX(v.id) FROM Video v")
     Long findMaxId();
