@@ -135,67 +135,78 @@ const VideoPage: React.FC<VideoPageProps> = ({ username }) => {
     }
   };
 
-  const handleLike = async (commentId: number) => {
+ const handleReaction = async (commentId: number, isLike: boolean) => {
     if (!userId) {
-      alert('You need to log in to like a comment.');
-      return;
+        alert('You need to log in to react to a comment.');
+        return;
     }
-
-    const payload = { commentId, userId }; // Create payload for logging
-    console.log('Like Request Payload:', payload); // Log the payload
 
     try {
-      const response = await fetch(
-        `http://localhost:8080/api/comments/${commentId}/like?userId=${userId}`,
-        { method: 'POST' }
-      );
+        // Send reaction request
+        const response = await fetch(
+            `http://localhost:8080/api/comments/${commentId}/react?userId=${userId}&isLike=${isLike}`,
+            { method: 'POST' }
+        );
 
-      if (!response.ok) {
-        throw new Error('Failed to like comment');
-      }
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Failed to react to comment.');
+        }
 
-      setComments((prevComments) =>
-        prevComments.map((comment) =>
-          comment.commentId === commentId
-            ? { ...comment, likes: comment.likes + 1 }
-            : comment
-        )
-      );
+        // Determine response type (JSON or plain text)
+        const contentType = response.headers.get('Content-Type');
+        let message;
+        if (contentType && contentType.includes('application/json')) {
+            const jsonResponse = await response.json();
+            message = jsonResponse.message || 'Reaction processed successfully.';
+        } else {
+            message = await response.text();
+        }
+
+        console.log('Server response:', message);
+
+        // Fetch updated comment details
+        const commentResponse = await fetch(
+            `http://localhost:8080/api/comments/${commentId}`
+        );
+
+        if (!commentResponse.ok) {
+            const errorText = await commentResponse.text();
+            console.error('Failed to fetch updated comment details:', errorText);
+            throw new Error('Failed to fetch updated comment details.');
+        }
+
+        const updatedComment = await commentResponse.json();
+        console.log('Updated comment details:', updatedComment);
+
+        // Update local state with new likes/dislikes
+        setComments((prevComments) =>
+            prevComments.map((comment) =>
+                comment.commentId === commentId
+                    ? {
+                          ...comment,
+                          likes: updatedComment.likes,
+                          dislikes: updatedComment.dislikes,
+                      }
+                    : comment
+            )
+        );
+
+        alert(message); // Optional feedback to the user
     } catch (err) {
-      alert((err as Error).message);
+        console.error('Error handling reaction:', err);
+        alert((err as Error).message || 'An unexpected error occurred.');
     }
-  };
+};
 
-  const handleDislike = async (commentId: number) => {
-    if (!userId) {
-      alert('You need to log in to dislike a comment.');
-      return;
-    }
+const handleLike = (commentId: number) => {
+    handleReaction(commentId, true); // Like reaction
+};
 
-    const payload = { commentId, userId }; // Create payload for logging
-    console.log('Dislike Request Payload:', payload); // Log the payload
+const handleDislike = (commentId: number) => {
+    handleReaction(commentId, false); // Dislike reaction
+};
 
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/comments/${commentId}/dislike?userId=${userId}`,
-        { method: 'POST' }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to dislike comment');
-      }
-
-      setComments((prevComments) =>
-        prevComments.map((comment) =>
-          comment.commentId === commentId
-            ? { ...comment, dislikes: comment.dislikes + 1 }
-            : comment
-        )
-      );
-    } catch (err) {
-      alert((err as Error).message);
-    }
-  };
 
   if (loading) {
     return <div className="loading">Loading video...</div>;

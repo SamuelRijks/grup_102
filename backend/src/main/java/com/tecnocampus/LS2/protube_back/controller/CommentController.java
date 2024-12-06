@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/comments")
 public class CommentController {
@@ -16,6 +19,26 @@ public class CommentController {
     @Autowired
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
+    }
+
+    @GetMapping("/{commentId}")
+    public ResponseEntity<?> getCommentById(@PathVariable Long commentId) {
+        try {
+            Optional<Comment> commentOpt = commentService.findById(commentId);
+            if (commentOpt.isPresent()) {
+                CommentDTO commentDTO = new CommentDTO(commentOpt.get());
+                return ResponseEntity.ok(commentDTO);
+            } else {
+                return ResponseEntity.status(404).body(Map.of("error", "Comment not found"));
+            }
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            System.err.println("Error fetching comment with ID " + commentId + ": " + e.getMessage());
+            e.printStackTrace();
+
+            // Return a 500 status code with an error message
+            return ResponseEntity.status(500).body(Map.of("error", "An error occurred while fetching the comment"));
+        }
     }
 
     @PostMapping("/add")
@@ -37,15 +60,14 @@ public class CommentController {
         return ResponseEntity.ok(updatedComment);
     }
 
-    @PostMapping("/{commentId}/like")
-    public ResponseEntity<Void> likeComment(@PathVariable Long commentId, @RequestParam Long userId) {
-        commentService.likeComment(commentId, userId);
-        return ResponseEntity.ok().build();
-    }
+    @PostMapping("/{commentId}/react")
+    public ResponseEntity<String> reactToComment(
+            @PathVariable Long commentId,
+            @RequestParam Long userId,
+            @RequestParam boolean isLike) {
 
-    @PostMapping("/{commentId}/dislike")
-    public ResponseEntity<Void> dislikeComment(@PathVariable Long commentId, @RequestParam Long userId) {
-        commentService.dislikeComment(commentId, userId);
-        return ResponseEntity.ok().build();
+        String message = commentService.toggleReaction(commentId, userId, isLike);
+        commentService.updateLikeDislikeCounts(commentId);
+        return ResponseEntity.ok(message);
     }
 }

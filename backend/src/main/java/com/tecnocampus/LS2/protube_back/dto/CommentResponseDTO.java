@@ -18,6 +18,8 @@ public class CommentResponseDTO {
     private String videoTitle; // Títol del vídeo al que pertany el comentari
     private int likes;      // Número de "M'agrada"
     private int dislikes;   // Número de "No m'agrada"
+    private boolean userLiked; // Whether the current user liked the comment
+    private boolean userDisliked;
 
     public CommentResponseDTO(Comment comment) {
         this.id = comment.getId();
@@ -29,5 +31,7 @@ public class CommentResponseDTO {
         this.dislikes = comment.getDislikes();
         this.videoId = comment.getVideo().getId();
         this.videoTitle = comment.getVideo().getTitle();
+        this.userLiked = false;
+        this.userDisliked = false;
     }
 }

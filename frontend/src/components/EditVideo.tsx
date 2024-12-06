@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
+interface Category {
+    id: number;
+    name: string;
+}
+
 interface EditVideoProps {
     videoId: number;
     username: string | null; // Current user's username
@@ -10,6 +15,10 @@ interface EditVideoProps {
 const EditVideo: React.FC<EditVideoProps> = ({ videoId, username, onClose, onVideoUpdated }) => {
     const [title, setTitle] = useState<string>('');
     const [description, setDescription] = useState<string>('');
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<number[]>([]);
+    const [tags, setTags] = useState<string>('');
+    const [newTag, setNewTag] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
     const [isOwner, setIsOwner] = useState<boolean>(false);
 
@@ -25,6 +34,8 @@ const EditVideo: React.FC<EditVideoProps> = ({ videoId, username, onClose, onVid
                 const data = await response.json();
                 setTitle(data.title);
                 setDescription(data.description || '');
+                setSelectedCategories(data.categories.map((category: Category) => category.id));
+                setTags(data.tags.map((tag: { name: string }) => tag.name).join(', '));
                 setIsOwner(data.uploaderUsername === username); // Check ownership
             } catch (err) {
                 setError('Failed to load video details');
@@ -34,23 +45,56 @@ const EditVideo: React.FC<EditVideoProps> = ({ videoId, username, onClose, onVid
         fetchVideoDetails();
     }, [videoId, username]);
 
+    useEffect(() => {
+        // Fetch all available categories
+        async function fetchCategories() {
+            try {
+                const response = await fetch('http://localhost:8080/api/categories');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch categories');
+                }
+
+                const data: Category[] = await response.json();
+                setCategories(data);
+            } catch (err) {
+                setError('Failed to fetch categories');
+            }
+        }
+
+        fetchCategories();
+    }, []);
+
+    const handleCategorySelect = (id: number) => {
+        setSelectedCategories((prev) =>
+            prev.includes(id) ? prev.filter((catId) => catId !== id) : [...prev, id]
+        );
+    };
+
+    const handleAddTag = () => {
+        if (newTag.trim()) {
+            setTags((prev) => (prev ? `${prev}, ${newTag}` : newTag));
+            setNewTag('');
+        }
+    };
+
     const handleSave = async () => {
         try {
-            console.log("Editing video with username:", username); // Debug username
             const response = await fetch(`http://localhost:8080/api/videos/edit/${videoId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     title,
                     description,
-                    username, // Include the username
+                    username,
+                    categories: selectedCategories,
+                    tags: tags.split(',').map((tag) => tag.trim()), // Convert tags to array
                 }),
             });
-    
+
             if (!response.ok) {
                 throw new Error('Failed to update video');
             }
-    
+
             onVideoUpdated();
             onClose();
         } catch (err) {
@@ -87,6 +131,36 @@ const EditVideo: React.FC<EditVideoProps> = ({ videoId, username, onClose, onVid
                     onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
             </label>
+            <div className="categories-section">
+                <h4>Categories</h4>
+                <div className="categories-list">
+                    {categories.map((category) => (
+                        <label key={category.id}>
+                            <input
+                                type="checkbox"
+                                checked={selectedCategories.includes(category.id)}
+                                onChange={() => handleCategorySelect(category.id)}
+                            />
+                            {category.name}
+                        </label>
+                    ))}
+                </div>
+            </div>
+            <div className="tags-section">
+                <h4>Tags</h4>
+                <div className="tags-input">
+                    <input
+                        type="text"
+                        placeholder="Enter new tag"
+                        value={newTag}
+                        onChange={(e) => setNewTag(e.target.value)}
+                    />
+                    <button type="button" onClick={handleAddTag}>
+                        Add Tag
+                    </button>
+                </div>
+                <p>Current Tags: {tags}</p>
+            </div>
             <button onClick={handleSave}>Save Changes</button>
             <button onClick={onClose}>Cancel</button>
         </div>

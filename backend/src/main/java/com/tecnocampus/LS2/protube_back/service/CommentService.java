@@ -1,14 +1,18 @@
 package com.tecnocampus.LS2.protube_back.service;
 
 import com.tecnocampus.LS2.protube_back.domain.Comment;
+import com.tecnocampus.LS2.protube_back.domain.CommentReaction;
 import com.tecnocampus.LS2.protube_back.domain.User;
 import com.tecnocampus.LS2.protube_back.domain.Video;
 import com.tecnocampus.LS2.protube_back.dto.CommentDTO;
+import com.tecnocampus.LS2.protube_back.repository.CommentReactionRepository;
 import com.tecnocampus.LS2.protube_back.repository.CommentRepository;
 import com.tecnocampus.LS2.protube_back.repository.UserRepository;
 import com.tecnocampus.LS2.protube_back.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -16,12 +20,14 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final VideoRepository videoRepository;
+    private CommentReactionRepository reactionRepository;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository, UserRepository userRepository, VideoRepository videoRepository) {
+    public CommentService(CommentRepository commentRepository, UserRepository userRepository, VideoRepository videoRepository, CommentReactionRepository reactionRepository) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
+        this.reactionRepository = reactionRepository;
     }
 
     public Comment createComment(CommentDTO commentDTO) {
@@ -57,19 +63,52 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public void likeComment(Long commentId, Long userId) {
+    public String toggleReaction(Long commentId, Long userId, boolean isLike) {
+
+        Optional<CommentReaction> existingReaction = reactionRepository.findByUserIdAndCommentId(userId, commentId);
+
+        if (existingReaction.isPresent()) {
+            CommentReaction reaction = existingReaction.get();
+            // If the reaction is the same, return a message
+            if (reaction.isLike() == isLike) {
+                return isLike ? "You already liked this comment." : "You already disliked this comment.";
+            }
+            // If the reaction is different, switch it
+            reaction.setIsLike(isLike);
+            reactionRepository.save(reaction);
+            return isLike ? "Switched to like." : "Switched to dislike.";
+        }
+
+        // Otherwise, create a new reaction
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
-        // Logic to check if the user has already liked the comment can be added here
-        comment.setLikes(comment.getLikes() + 1);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CommentReaction reaction = new CommentReaction();
+        reaction.setUser(user); // Set the User object
+        reaction.setComment(comment); // Set the Comment object
+        reaction.setIsLike(isLike);
+        reactionRepository.save(reaction);
+
+        return isLike ? "Comment liked." : "Comment disliked.";
+    }
+
+    public void updateLikeDislikeCounts(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+
+        // Count likes and dislikes separately
+        int likeCount = reactionRepository.countByCommentIdAndIsLikeTrue(commentId);
+        int dislikeCount = reactionRepository.countByCommentIdAndIsLikeFalse(commentId);
+
+        // Update the comment's counters
+        comment.setLikes(likeCount);
+        comment.setDislikes(dislikeCount);
         commentRepository.save(comment);
     }
 
-    public void dislikeComment(Long commentId, Long userId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new RuntimeException("Comment not found"));
-        // Logic to check if the user has already disliked the comment can be added here
-        comment.setDislikes(comment.getDislikes() + 1);
-        commentRepository.save(comment);
+    public Optional<Comment> findById(Long id) {
+        return commentRepository.findById(id);
     }
 }

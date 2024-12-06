@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "comments")
@@ -31,6 +33,9 @@ public class Comment {
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentReaction> reactions = new ArrayList<>();
 
     private int likes;
     private int dislikes;
