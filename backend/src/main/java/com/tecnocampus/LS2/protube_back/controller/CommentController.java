@@ -31,7 +31,7 @@ public class CommentController {
             } else {
                 return ResponseEntity.status(404).body(Map.of("error", "Comment not found"));
             }
-        } catch (Exception e) {
+        } catch (Exception e) { 
             // Log the exception for debugging purposes
             System.err.println("Error fetching comment with ID " + commentId + ": " + e.getMessage());
             e.printStackTrace();

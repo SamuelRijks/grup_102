@@ -1,77 +1,102 @@
-/* General Styling */
+/* General App Container */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9fafc;
+    font-family: 'Inter', Arial, sans-serif;
+}
+
+/* Search Bar Styling */
+.search-bar-container {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center align the input */
+    width: 100%;
+    max-width: 600px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-input {
+    flex: 1 !important;
+    padding: 10px !important;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 100% !important; /* Ensure the input stretches fully inside the container */
+    box-sizing: border-box !important; /* Prevent padding from adding to the width */
+}
+
+.search-input:focus {
+    border-color: #61dafb;
+}
+
+/* Video List Styling */
 .video-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
     padding: 20px;
-    background-color: #f9fafc; /* Neutral background */
-    font-family: 'Inter', Arial, sans-serif; /* Clean typography */
+    width: 100%;
+    max-width: 1200px;
 }
 
 /* Video Card Styling */
 .video-item {
-    background-color: #ffffff; /* White card background */
-    border: 1px solid #e6e8eb; /* Light border for structure */
-    border-radius: 16px;
+    background-color: white;
+    border: 1px solid #e6e8eb;
+    border-radius: 12px;
     overflow: hidden;
-    padding: 16px;
     text-align: center;
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Card Hover Effect */
 .video-item:hover {
-    transform: translateY(-5px); /* Slight hover lift */
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Video Thumbnail Styling */
 .video-item img {
     width: 100%;
-    height: auto;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Light shadow */
+    height: 150px;
+    object-fit: cover;
+    border-radius: 12px 12px 0 0;
 }
 
-/* Thumbnail Hover Effect */
-.video-item img:hover {
-    transform: scale(1.03); /* Subtle zoom effect */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12); /* Slightly stronger shadow */
-}
-
-/* Video Title */
 .video-item h3 {
-    font-size: 1.4rem;
-    color: #2a2f45; /* Dark gray for readability */
-    font-weight: 600;
+    font-size: 1.2rem;
+    color: #333;
     margin: 12px 0;
 }
 
-/* Secondary Text (description, user, etc.) */
 .video-item p {
-    font-size: 0.95rem;
-    color: #6b7280; /* Muted gray */
-    margin: 0;
-    line-height: 1.4;
+    font-weight: normal !important;
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0 0 12px;
 }
 
-/* Responsive Design */
+/* No Results Message */
+.no-results {
+    font-size: 1.2rem;
+    color: #999;
+    text-align: center;
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
     .video-list {
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-    }
-
-    .video-item {
-        padding: 12px;
     }
 
     .video-item h3 {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 
     .video-item p {
@@ -81,14 +106,10 @@
 
 @media (max-width: 480px) {
     .video-list {
-        grid-template-columns: 1fr; /* Single column for small screens */
+        grid-template-columns: 1fr;
     }
 
-    .video-item h3 {
-        font-size: 1rem;
-    }
-
-    .video-item p {
-        font-size: 0.8rem;
+    .video-item img {
+        height: 120px;
     }
 }

@@ -64,14 +64,6 @@ const App: React.FC = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="search-bar">
-              <input
-                type="text"
-                placeholder="Search videos..."
-                className="search-input"
-              />
-              <button className="search-button">Search</button>
-            </div>
 
             {/* User Profile */}
             <div className="user-profile">
