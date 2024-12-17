@@ -3,13 +3,16 @@ package com.tecnocampus.LS2.protube_back.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tecnocampus.LS2.protube_back.domain.Category;
 import com.tecnocampus.LS2.protube_back.domain.Meta;
+import com.tecnocampus.LS2.protube_back.domain.User;
 import com.tecnocampus.LS2.protube_back.domain.Video;
 import com.tecnocampus.LS2.protube_back.dto.VideoDetailsDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoSummaryDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoUpdateDTO;
 import com.tecnocampus.LS2.protube_back.dto.VideoUploadDTO;
 import com.tecnocampus.LS2.protube_back.repository.CategoryRepository;
+import com.tecnocampus.LS2.protube_back.repository.UserRepository;
 import com.tecnocampus.LS2.protube_back.service.VideoService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -38,12 +41,14 @@ public class VideoController {
     private final VideoService videoService;
     private final Path videoLocation;
     private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public VideoController(VideoService videoService, @Value("${pro_tube.store.dir}") String storeDir, CategoryRepository categoryRepository) {
+    public VideoController(VideoService videoService, @Value("${pro_tube.store.dir}") String storeDir, CategoryRepository categoryRepository, UserRepository userRepository) {
         this.videoService = videoService;
         this.videoLocation = Paths.get(storeDir);
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/{filename:.+}")
@@ -88,64 +93,65 @@ public class VideoController {
 
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadVideo(@ModelAttribute VideoUploadDTO videoUploadDTO) {
-        System.out.println("Upload endpoint called with title: " + videoUploadDTO.getTitle());
         try {
             MultipartFile file = videoUploadDTO.getFile();
-            if (file == null || !file.getOriginalFilename().toLowerCase().endsWith(".mp4")) {
-                System.out.println("File is null");
-                return ResponseEntity.badRequest().body(Map.of("error", "Invalid file. Must be an MP4."));
+            if (file == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "No file provided."));
             }
             if (!file.getOriginalFilename().toLowerCase().endsWith(".mp4")) {
-                System.out.println("Invalid file type: " + file.getOriginalFilename());
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid file. Must be an MP4."));
             }
 
+            User user = userRepository.findByUsername(videoUploadDTO.getUsername())
+                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
             Long nextId = videoService.getNextVideoId();
+
             String fileName = nextId + ".mp4";
-            Path filePath = videoLocation.resolve(nextId + ".mp4");
+            Path filePath = videoLocation.resolve(fileName);
             try {
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("File saved at: " + filePath);
             } catch (Exception e) {
-                System.out.println("Failed to save file: " + e.getMessage());
                 e.printStackTrace();
                 return ResponseEntity.status(500).body(Map.of("error", "Failed to save file"));
             }
 
-            // Generate thumbnail and metadata
+            // Generate thumbnail
             String thumbnailPath = videoLocation.resolve(nextId + ".webp").toString();
             try {
                 generateThumbnail(filePath.toString(), thumbnailPath, "00:00:05");
             } catch (Exception e) {
-                System.out.println("Failed to generate thumbnail: " + e.getMessage());
                 e.printStackTrace();
                 return ResponseEntity.status(500).body(Map.of("error", "Failed to generate thumbnail"));
             }
 
             // Set additional fields in DTO
             videoUploadDTO.setUrl(fileName);
-
             videoUploadDTO.setThumbnailUrl(normalizeUrl("/api/images", nextId + ".webp"));
 
-
+            // Handle tags
             List<String> tags = videoUploadDTO.getTags();
             if (tags == null || tags.isEmpty()) {
-                tags = null; // Assign null if empty
+                tags = null;
             }
 
+            // Handle categories
             List<String> categories = videoUploadDTO.getCategories();
-            if (categories != null && !categories.isEmpty()) {
-                videoUploadDTO.setCategories(categories);
+            if (categories == null || categories.isEmpty()) {
+                categories = null;
             } else {
-                videoUploadDTO.setCategories(null); // Allow empty categories
+                try {
+                    categories = categories.stream()
+                            .map(name -> name.substring(1, name.length() - 1))
+                            .flatMap(name -> Arrays.stream(name.replaceAll("\\[\\[|\\]\\]", "").split(","))) // Remove outer brackets and split by comma
+                            .map(String::trim) // Remove leading/trailing spaces
+                            .map(name -> name.replace("\"", "")) // Remove quotes if they exist
+                            .collect(Collectors.toList());
+                } catch (Exception e) {
+                }
             }
-            categories = categories.stream()
-                    .map(name -> name.substring(1, name.length() - 1))
-                    .flatMap(name -> Arrays.stream(name.replaceAll("\\[\\[|\\]\\]", "").split(","))) // Remove outer brackets and split by comma
-                    .map(String::trim) // Remove leading/trailing spaces
-                    .map(name -> name.replace("\"", "")) // Remove quotes if they exist
-                    .collect(Collectors.toList());
 
-            if (videoUploadDTO.getUserId() == null) {
+            if (videoUploadDTO.getUsername() == null) {
                 return ResponseEntity.badRequest().body(Map.of("error", "User ID is missing or null."));
             }
 
@@ -161,26 +167,36 @@ public class VideoController {
             videoUploadDTO.setHeight((Integer) metadata.get("height"));
             videoUploadDTO.setDuration((Double) metadata.get("duration"));
 
-            Video savedVideo = videoService.uploadVideo(videoUploadDTO);
+            // Save video in database
+            Video savedVideo;
+            try {
+                savedVideo = videoService.uploadVideo(videoUploadDTO);
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body(Map.of("error", "Failed to save video in the database."));
+            }
 
-
-            // Generate JSON metadata
+            // Generate metadata JSON
             String jsonPath = videoLocation.resolve(nextId + ".json").toString();
-            createMetadataJson(
-                    jsonPath,
-                    nextId,
-                    videoUploadDTO.getTitle(),
-                    savedVideo.getUploader().getUsername(),
-                    videoUploadDTO.getWidth(),
-                    videoUploadDTO.getHeight(),
-                    videoUploadDTO.getDuration(),
-                    videoUploadDTO.getDescription(),
-                    categories,
-                    tags,
-                    new ArrayList<>(), // Empty comments list
-                    videoUploadDTO.getUrl(),
-                    videoUploadDTO.getThumbnailUrl()
-            );
+            try {
+                createMetadataJson(
+                        jsonPath,
+                        nextId,
+                        videoUploadDTO.getTitle(),
+                        savedVideo.getUploader().getUsername(),
+                        videoUploadDTO.getWidth(),
+                        videoUploadDTO.getHeight(),
+                        videoUploadDTO.getDuration(),
+                        videoUploadDTO.getDescription(),
+                        categories,
+                        tags,
+                        new ArrayList<>(), // Empty comments list
+                        videoUploadDTO.getUrl(),
+                        videoUploadDTO.getThumbnailUrl()
+                );
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body(Map.of("error", "Failed to generate metadata JSON."));
+            }
+
             return ResponseEntity.ok(Map.of(
                     "message", "Video uploaded successfully.",
                     "videoId", String.valueOf(savedVideo.getId())
@@ -190,6 +206,7 @@ public class VideoController {
             return ResponseEntity.status(500).body(Map.of("error", "Failed to upload video: " + e.getMessage()));
         }
     }
+
 
     private String normalizeUrl(String baseUrl, String path) {
         if (baseUrl.endsWith("/")) baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
@@ -207,16 +224,6 @@ public class VideoController {
                 thumbnailPath
         );
         Process process = processBuilder.start();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-             BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println("ffmpeg output: " + line);
-            }
-            while ((line = errorReader.readLine()) != null) {
-                System.err.println("ffmpeg error: " + line);
-            }
-        }
 
         int exitCode = process.waitFor();
         if (exitCode != 0) {
@@ -278,18 +285,14 @@ public class VideoController {
 
                 String dimensionsOutput = reader.readLine();
                 if (dimensionsOutput != null) {
-                    System.out.println("Dimensions output: " + dimensionsOutput);
                     String[] dimensions = dimensionsOutput.split(",");
                     metadata.put("width", Integer.parseInt(dimensions[0].trim()));
                     metadata.put("height", Integer.parseInt(dimensions[1].trim()));
                 } else {
-                    System.err.println("No dimensions output from ffprobe.");
                     throw new RuntimeException("Failed to extract dimensions.");
                 }
-
                 String errorOutput;
                 while ((errorOutput = errorReader.readLine()) != null) {
-                    System.err.println("ffprobe error (dimensions): " + errorOutput);
                 }
             }
 
@@ -317,16 +320,13 @@ public class VideoController {
 
                 String durationOutput = reader.readLine();
                 if (durationOutput != null) {
-                    System.out.println("Duration output: " + durationOutput);
                     metadata.put("duration", Double.parseDouble(durationOutput.trim()));
                 } else {
-                    System.err.println("No duration output from ffprobe.");
                     throw new RuntimeException("Failed to extract duration.");
                 }
 
                 String errorOutput;
                 while ((errorOutput = errorReader.readLine()) != null) {
-                    System.err.println("ffprobe error (duration): " + errorOutput);
                 }
             }
 
@@ -351,15 +351,10 @@ public class VideoController {
             Optional<Video> videoOpt = videoService.findById(id);
 
             if (videoOpt.isEmpty()) {
-                System.out.println("No video found with ID: " + id);
                 return ResponseEntity.notFound().build();
             }
 
             Video video = videoOpt.get();
-            System.out.println("Fetched video details: ");
-            System.out.println("Title: " + video.getTitle());
-            System.out.println("Uploader: " + video.getUploader().getUsername());
-            System.out.println("UpdateDTO: " + videoUpdateDTO.getUsername());
 
             // Check if the user attempting to edit the video matches the uploader
             if (!video.getUploader().getUsername().equals(videoUpdateDTO.getUsername())) {
@@ -371,7 +366,7 @@ public class VideoController {
             if (video.getMeta() != null) {
                 video.getMeta().setDescription(videoUpdateDTO.getDescription());
             } else {
-                System.out.println("Meta data is null. Creating new meta object...");
+
                 Meta meta = new Meta();
                 meta.setDescription(videoUpdateDTO.getDescription());
                 video.setMeta(meta);
@@ -379,12 +374,10 @@ public class VideoController {
 
             // Save the updated video
             videoService.save(video);
-            System.out.println("Video updated successfully.");
 
             return ResponseEntity.ok("Video updated successfully.");
         } catch (Exception e) {
             // Log the exception for debugging
-            System.err.println("Error occurred while editing video:");
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while editing the video.");
         }

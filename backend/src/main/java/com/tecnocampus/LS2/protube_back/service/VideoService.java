@@ -33,7 +33,6 @@ public class VideoService {
     public VideoDetailsDTO getVideoDetailsById(Long id) {
         Video video = videoRepository.findById(id).orElse(null);
         if (video == null) {
-            System.out.println("Video not found");
             return null;
         }
         return new VideoDetailsDTO(video);
@@ -51,12 +50,10 @@ public class VideoService {
 
     public Video uploadVideo(VideoUploadDTO videoUploadDTO) {
         // Validate User
-        User uploader = userRepository.findById(videoUploadDTO.getUserId())
+        User uploader = userRepository.findByUsername(videoUploadDTO.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         List<String> categoryNames = videoUploadDTO.getCategories();
-        System.out.println("Original categoryNames before trimming: " + categoryNames);
-        System.out.println("categoryNames is null: " + (categoryNames == null));
 
         // Check if categoryNames is effectively empty
         boolean isEffectivelyEmpty = categoryNames == null || categoryNames.isEmpty() ||
@@ -64,9 +61,8 @@ public class VideoService {
 
         if (isEffectivelyEmpty) {
             categoryNames = Collections.emptyList(); // Assign an empty list
-            System.out.println("categoryNames is null or effectively empty");
+
         } else {
-            System.out.println("categoryNames is not null or effectively empty");
             // Process the non-empty categoryNames
             categoryNames = categoryNames.stream()
                     .map(name -> name.substring(1, name.length() - 1))
@@ -75,9 +71,6 @@ public class VideoService {
                     .map(name -> name.replace("\"", "")) // Remove quotes if they exist
                     .collect(Collectors.toList());
         }
-
-        // Print processed categoryNames
-        System.out.println("Processed categoryNames IN VIDEOSERVICE: " + categoryNames);
 
         List<Category> categories = null;
         if (!categoryNames.isEmpty()) {
@@ -95,8 +88,6 @@ public class VideoService {
         }
 
         Long nextId = getNextVideoId();
-        System.out.println("nextId: " + nextId);
-
         // Create Video
         Video video = new Video();
         video.setId(nextId);
@@ -136,7 +127,7 @@ public class VideoService {
         Video video = videoRepository.findById(videoId)
                 .orElseThrow(() -> new RuntimeException("Video not found"));
 
-        User user = userRepository.findById(videoUploadDTO.getUserId())
+        User user = userRepository.findByUsername(videoUploadDTO.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!video.getUploader().getId().equals(user.getId())) {

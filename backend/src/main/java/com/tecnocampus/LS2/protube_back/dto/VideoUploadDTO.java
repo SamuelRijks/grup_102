@@ -13,7 +13,7 @@ import java.util.List;
 public class VideoUploadDTO {
 
     @NotNull(message = "User ID cannot be null")
-    private Long userId;
+    private String username;
 
     @NotBlank(message = "The title cannot be empty")
     private String title;

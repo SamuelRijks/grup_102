@@ -78,15 +78,37 @@ const MyVideosPage: React.FC<MyVideosPageProps> = ({ username }) => {
             setError('Title and file are required');
             return;
         }
+
+        if (!username) {
+            setError('User is not logged in');
+            return;
+        }
+
         setUploading(true);
         setError(null);
 
         try {
+
+            const selectedCategoryNames = selectedCategories.map(
+                (id) => categories.find((category) => category.id === id)?.name
+            );
+    
+            if (selectedCategoryNames.includes(undefined)) {
+                setError('Some selected categories are invalid');
+                return;
+            }
+            
             const formData = new FormData();
             formData.append('title', title);
             formData.append('file', file);
-            formData.append('categories', JSON.stringify(selectedCategories));
+            formData.append('username', username);
+            formData.append('categories', JSON.stringify(selectedCategoryNames));
             formData.append('tags', tags);
+            
+            console.log('Data being sent to the backend:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
 
             const response = await fetch('http://localhost:8080/api/videos/upload', {
                 method: 'POST',
